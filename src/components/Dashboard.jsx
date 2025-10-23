@@ -77,18 +77,17 @@ const Dashboard = () => {
     let data = [];
     
     // Generate data based on date range
-    if (filters.dateRange === 'Last 7 days') {
+    if (filters.dateRange === 'This Week' || filters.dateRange === 'Last Week') {
       data = [
-        { date: 'Oct 15', value: 2.8 },
-        { date: 'Oct 16', value: 3.1 },
-        { date: 'Oct 17', value: 2.6 },
-        { date: 'Oct 18', value: 2.9 },
-        { date: 'Oct 19', value: 2.4 },
-        { date: 'Oct 20', value: 2.7 },
-        { date: 'Oct 21', value: 2.5 }
+        { date: 'Mon', value: 2.8 },
+        { date: 'Tue', value: 3.1 },
+        { date: 'Wed', value: 2.6 },
+        { date: 'Thu', value: 2.9 },
+        { date: 'Fri', value: 2.4 },
+        { date: 'Sat', value: 2.7 },
+        { date: 'Sun', value: 2.5 }
       ];
-    } else if (filters.dateRange === 'Last 90 days') {
-      // Generate more data points for 90 days
+    } else if (filters.dateRange === 'Last 3 Months') {
       data = [
         { date: 'Jul 23', value: 2.2 },
         { date: 'Aug 6', value: 2.6 },
@@ -99,17 +98,21 @@ const Dashboard = () => {
         { date: 'Oct 15', value: 2.6 },
         { date: 'Oct 21', value: 2.7 }
       ];
-    } else if (filters.dateRange === 'Next 30 days') {
-      // Forecast data
+    } else if (filters.dateRange === 'This Year') {
       data = [
-        { date: 'Oct 22', value: 2.6 },
-        { date: 'Oct 28', value: 2.8 },
-        { date: 'Nov 4', value: 2.5 },
-        { date: 'Nov 11', value: 2.7 },
-        { date: 'Nov 18', value: 2.9 }
+        { date: 'Jan', value: 2.2 },
+        { date: 'Feb', value: 2.4 },
+        { date: 'Mar', value: 2.6 },
+        { date: 'Apr', value: 2.5 },
+        { date: 'May', value: 2.7 },
+        { date: 'Jun', value: 2.8 },
+        { date: 'Jul', value: 2.6 },
+        { date: 'Aug', value: 2.9 },
+        { date: 'Sep', value: 2.7 },
+        { date: 'Oct', value: 2.8 }
       ];
     } else {
-      // Last 30 days (default)
+      // This Month / Last Month (default)
       data = [
         { date: 'Sep 21', value: 2.3 },
         { date: 'Sep 28', value: 2.7 },
