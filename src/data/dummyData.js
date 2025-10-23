@@ -1,0 +1,884 @@
+// Dummy OBD-II Data Generator for Fleet Management Dashboard
+
+export const generateVehicleData = () => {
+  // Generate 100 vehicles with varied data
+  const generateDummyVehicles = () => {
+    const vehicles = [];
+    const types = ['Van', 'Truck', 'Car'];
+    const fuelTypes = ['Diesel', 'Gas', 'Hybrid'];
+    const statuses = ['Active', 'Idle', 'In Service'];
+    const alertTypes = [
+      'Engine Fault (P0300)', 'Low Tire Pressure', 'Battery Low', 'DEF Low',
+      'Oil Change Due', 'P0171 - System Lean', 'P0420 - Catalyst', 'Extended Idle',
+      'High Engine Load', 'Coolant High', 'Brake Inspection Due'
+    ];
+    
+    for (let i = 1; i <= 100; i++) {
+      const type = types[i % 3];
+      const fuelType = fuelTypes[i % 3];
+      const status = i % 8 === 0 ? 'In Service' : i % 5 === 0 ? 'Idle' : 'Active';
+      const alertCount = Math.floor(Math.random() * 3);
+      const alerts = [];
+      for (let j = 0; j < alertCount; j++) {
+        alerts.push({
+          type: alertTypes[Math.floor(Math.random() * alertTypes.length)],
+          severity: ['Critical', 'High', 'Medium', 'Low'][Math.floor(Math.random() * 4)]
+        });
+      }
+      
+      const prefix = type === 'Van' ? 'VAN' : type === 'Truck' ? 'TRK' : 'CAR';
+      
+      vehicles.push({
+        id: `${prefix}-${String(i).padStart(3, '0')}`,
+        vin: `1FTFW1EV${Math.floor(Math.random() * 10)}DFC${String(i).padStart(5, '0')}`,
+        cameraSN: `CAM-${prefix.substring(0, 2)}-2023-${String(i).padStart(3, '0')}`,
+        type,
+        status,
+        fuelType,
+        healthIndex: Math.floor(45 + Math.random() * 45),
+        fuelCostPerKm: parseFloat((0.15 + Math.random() * 0.15).toFixed(2)),
+        avgFuelEfficiency: parseFloat((6 + Math.random() * 8).toFixed(1)),
+        fuelConsumptionDaily: parseFloat((status === 'In Service' ? 0 : 5 + Math.random() * 15).toFixed(1)),
+        fuelMoving: parseFloat((status === 'In Service' ? 0 : 4 + Math.random() * 10).toFixed(1)),
+        fuelIdle: parseFloat((status === 'Idle' ? 2 + Math.random() * 3 : Math.random() * 2).toFixed(1)),
+        totalFuelCostDaily: parseFloat((status === 'In Service' ? 0 : 10 + Math.random() * 20).toFixed(2)),
+        alerts,
+        engineRPM: status === 'In Service' ? 0 : Math.floor(650 + Math.random() * 500),
+        engineLoad: status === 'In Service' ? 0 : Math.floor(Math.random() * 50),
+        engineTorque: status === 'In Service' ? 0 : Math.floor(50 + Math.random() * 200),
+        batteryVoltage: parseFloat((11.8 + Math.random() * 1.5).toFixed(1)),
+        coolantTemp: Math.floor(status === 'In Service' ? 25 : 75 + Math.random() * 25),
+        oilPressure: status === 'In Service' ? 0 : Math.floor(35 + Math.random() * 15),
+        fuelLevel: Math.floor(30 + Math.random() * 50),
+        defLevel: fuelType === 'Diesel' ? Math.floor(5 + Math.random() * 50) : null,
+        ambientTemp: 22,
+        barometricPressure: 101.3,
+        intakeAirTemp: Math.floor(22 + Math.random() * 15),
+        speedKmh: status === 'Active' ? Math.floor(Math.random() * 80) : 0,
+        odometerKm: Math.floor(10000 + Math.random() * 90000),
+        activeDTCs: alertCount
+      });
+    }
+    return vehicles;
+  };
+
+  const vehicles = generateDummyVehicles();
+  
+  // Keep some specific examples at the beginning for consistency
+  const specificVehicles = [
+    {
+      id: 'VAN-001',
+      vin: '1GCHK23D7PF123456',
+      cameraSN: 'CAM-VN-2023-001',
+      type: 'Van',
+      status: 'Active',
+      fuelType: 'Diesel',
+      healthIndex: 72,
+      fuelCostPerKm: 0.24,
+      avgFuelEfficiency: 8.5,
+      fuelConsumptionDaily: 15.2,
+      fuelMoving: 11.8,
+      fuelIdle: 3.4,
+      totalFuelCostDaily: 22.80,
+      alerts: [
+        { type: 'Engine Fault (P0300)', severity: 'Critical' },
+        { type: 'Oil Change Due', severity: 'Medium' }
+      ],
+      // Detailed OBD parameters
+      engineRPM: 920,
+      engineLoad: 32,
+      engineTorque: 145,
+      batteryVoltage: 12.2,
+      coolantTemp: 93,
+      oilPressure: 45,
+      fuelLevel: 58,
+      defLevel: 35,
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: 31,
+      speedKmh: 38,
+      odometerKm: 45230,
+      activeDTCs: 2
+    },
+    {
+      id: 'TRK-142',
+      vin: 'IFTSW21R08E899001',
+      cameraSN: 'CAM-TK-2023-142',
+      type: 'Truck',
+      status: 'Idle',
+      fuelType: 'Diesel',
+      healthIndex: 58,
+      fuelCostPerKm: 0.18,
+      avgFuelEfficiency: 6.2,
+      fuelConsumptionDaily: 8.3,
+      fuelMoving: 5.1,
+      fuelIdle: 3.2,
+      totalFuelCostDaily: 12.45,
+      alerts: [
+        { type: 'Low Tire Pressure', severity: 'High' },
+        { type: 'DEF Low', severity: 'High' }
+      ],
+      engineRPM: 0,
+      engineLoad: 0,
+      engineTorque: 0,
+      batteryVoltage: 11.8,
+      coolantTemp: 40,
+      oilPressure: 0,
+      fuelLevel: 46,
+      defLevel: 8,
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: 22,
+      speedKmh: 0,
+      odometerKm: 78450,
+      activeDTCs: 2
+    },
+    {
+      id: 'CAR-227',
+      vin: 'WVWZZZ1JZW000001',
+      cameraSN: 'CAM-CR-2023-227',
+      type: 'Car',
+      status: 'Active',
+      fuelType: 'Gas',
+      healthIndex: 78,
+      fuelCostPerKm: 0.26,
+      avgFuelEfficiency: 9.8,
+      fuelConsumptionDaily: 12.5,
+      fuelMoving: 10.2,
+      fuelIdle: 2.3,
+      totalFuelCostDaily: 18.75,
+      alerts: [
+        { type: 'Battery Low', severity: 'Medium' }
+      ],
+      engineRPM: 650,
+      engineLoad: 8,
+      engineTorque: 65,
+      batteryVoltage: 12.1,
+      coolantTemp: 88,
+      oilPressure: 38,
+      fuelLevel: 53,
+      defLevel: null,
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: 29,
+      speedKmh: 0,
+      odometerKm: 32180,
+      activeDTCs: 1
+    },
+    {
+      id: 'VAN-003',
+      vin: '1FTFW1ET5DFC10312',
+      cameraSN: 'CAM-VN-2023-003',
+      type: 'Van',
+      status: 'In Service',
+      fuelType: 'Gas',
+      healthIndex: 45,
+      fuelCostPerKm: 0.22,
+      avgFuelEfficiency: 7.9,
+      fuelConsumptionDaily: 0,
+      fuelMoving: 0,
+      fuelIdle: 0,
+      totalFuelCostDaily: 0,
+      alerts: [
+        { type: 'Scheduled Maintenance', severity: 'Low' }
+      ],
+      engineRPM: 0,
+      engineLoad: 0,
+      engineTorque: 0,
+      batteryVoltage: 12.4,
+      coolantTemp: 25,
+      oilPressure: 0,
+      fuelLevel: 72,
+      defLevel: null,
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: 22,
+      speedKmh: 0,
+      odometerKm: 56890,
+      activeDTCs: 1
+    },
+    {
+      id: 'CAR-156',
+      vin: '5YJSA1E14HF123789',
+      cameraSN: 'CAM-CR-2023-156',
+      type: 'Car',
+      status: 'Active',
+      fuelType: 'Hybrid',
+      healthIndex: 89,
+      fuelCostPerKm: 0.15,
+      avgFuelEfficiency: 14.2,
+      fuelConsumptionDaily: 8.7,
+      fuelMoving: 7.8,
+      fuelIdle: 0.9,
+      totalFuelCostDaily: 13.05,
+      alerts: [],
+      engineRPM: 1200,
+      engineLoad: 25,
+      engineTorque: 95,
+      batteryVoltage: 13.2,
+      coolantTemp: 82,
+      oilPressure: 42,
+      fuelLevel: 68,
+      defLevel: null,
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: 28,
+      speedKmh: 45,
+      odometerKm: 12350,
+      activeDTCs: 0
+    },
+    {
+      id: 'TRK-089',
+      vin: '1HGBH41JXMN109186',
+      cameraSN: 'CAM-TK-2023-089',
+      type: 'Truck',
+      status: 'Active',
+      fuelType: 'Diesel',
+      healthIndex: 65,
+      fuelCostPerKm: 0.19,
+      avgFuelEfficiency: 7.1,
+      fuelConsumptionDaily: 18.5,
+      fuelMoving: 14.2,
+      fuelIdle: 4.3,
+      totalFuelCostDaily: 27.75,
+      alerts: [
+        { type: 'P0191 - Fuel Pressure', severity: 'Critical' },
+        { type: 'DEF Low', severity: 'High' }
+      ],
+      engineRPM: 1100,
+      engineLoad: 45,
+      engineTorque: 280,
+      batteryVoltage: 12.8,
+      coolantTemp: 96,
+      oilPressure: 48,
+      fuelLevel: 42,
+      defLevel: 8,
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: 35,
+      speedKmh: 65,
+      odometerKm: 89250,
+      activeDTCs: 2
+    },
+    {
+      id: 'VAN-045',
+      vin: '2HKRL18H8XH123456',
+      cameraSN: 'CAM-VN-2023-045',
+      type: 'Van',
+      status: 'Active',
+      fuelType: 'Gas',
+      healthIndex: 71,
+      fuelCostPerKm: 0.23,
+      avgFuelEfficiency: 8.8,
+      fuelConsumptionDaily: 14.1,
+      fuelMoving: 11.5,
+      fuelIdle: 2.6,
+      totalFuelCostDaily: 21.15,
+      alerts: [
+        { type: 'P0101 - MAF Circuit', severity: 'High' }
+      ],
+      engineRPM: 850,
+      engineLoad: 28,
+      engineTorque: 125,
+      batteryVoltage: 12.3,
+      coolantTemp: 91,
+      oilPressure: 44,
+      fuelLevel: 61,
+      defLevel: null,
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: 30,
+      speedKmh: 52,
+      odometerKm: 54780,
+      activeDTCs: 1
+    },
+    {
+      id: 'CAR-334',
+      vin: 'JH4KA7650NC123456',
+      cameraSN: 'CAM-CR-2023-334',
+      type: 'Car',
+      status: 'Active',
+      fuelType: 'Gas',
+      healthIndex: 82,
+      fuelCostPerKm: 0.21,
+      avgFuelEfficiency: 10.2,
+      fuelConsumptionDaily: 11.3,
+      fuelMoving: 9.8,
+      fuelIdle: 1.5,
+      totalFuelCostDaily: 16.95,
+      alerts: [
+        { type: 'P0340 - Camshaft Pos', severity: 'Medium' }
+      ],
+      engineRPM: 720,
+      engineLoad: 18,
+      engineTorque: 78,
+      batteryVoltage: 12.5,
+      coolantTemp: 86,
+      oilPressure: 40,
+      fuelLevel: 58,
+      defLevel: null,
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: 27,
+      speedKmh: 48,
+      odometerKm: 28900,
+      activeDTCs: 1
+    },
+    {
+      id: 'VAN-078',
+      vin: '1FTFW1EV9DFC10312',
+      cameraSN: 'CAM-VN-2023-078',
+      type: 'Van',
+      status: 'Idle',
+      fuelType: 'Diesel',
+      healthIndex: 68,
+      fuelCostPerKm: 0.22,
+      avgFuelEfficiency: 8.2,
+      fuelConsumptionDaily: 2.1,
+      fuelMoving: 0,
+      fuelIdle: 2.1,
+      totalFuelCostDaily: 3.15,
+      alerts: [
+        { type: 'Extended Idle', severity: 'Medium' }
+      ],
+      engineRPM: 750,
+      engineLoad: 5,
+      engineTorque: 15,
+      batteryVoltage: 12.0,
+      coolantTemp: 78,
+      oilPressure: 35,
+      fuelLevel: 45,
+      defLevel: 42,
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: 24,
+      speedKmh: 0,
+      odometerKm: 67340,
+      activeDTCs: 1
+    },
+    {
+      id: 'TRK-201',
+      vin: '1HGCM82633A004352',
+      cameraSN: 'CAM-TK-2023-201',
+      type: 'Truck',
+      status: 'Active',
+      fuelType: 'Diesel',
+      healthIndex: 74,
+      fuelCostPerKm: 0.17,
+      avgFuelEfficiency: 7.5,
+      fuelConsumptionDaily: 16.8,
+      fuelMoving: 13.9,
+      fuelIdle: 2.9,
+      totalFuelCostDaily: 25.20,
+      alerts: [
+        { type: 'Tire Rotation Due', severity: 'Medium' }
+      ],
+      engineRPM: 980,
+      engineLoad: 38,
+      engineTorque: 245,
+      batteryVoltage: 12.6,
+      coolantTemp: 94,
+      oilPressure: 46,
+      fuelLevel: 55,
+      defLevel: 28,
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: 32,
+      speedKmh: 58,
+      odometerKm: 92180,
+      activeDTCs: 1
+    },
+    {
+      id: 'CAR-445',
+      vin: 'WBADT43452G123456',
+      cameraSN: 'CAM-CR-2023-445',
+      type: 'Car',
+      status: 'Active',
+      fuelType: 'Gas',
+      healthIndex: 85,
+      fuelCostPerKm: 0.20,
+      avgFuelEfficiency: 11.5,
+      fuelConsumptionDaily: 9.8,
+      fuelMoving: 8.9,
+      fuelIdle: 0.9,
+      totalFuelCostDaily: 14.70,
+      alerts: [],
+      engineRPM: 680,
+      engineLoad: 15,
+      engineTorque: 68,
+      batteryVoltage: 12.7,
+      coolantTemp: 84,
+      oilPressure: 41,
+      fuelLevel: 72,
+      defLevel: null,
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: 26,
+      speedKmh: 42,
+      odometerKm: 18650,
+      activeDTCs: 0
+    }
+  ];
+
+  return [...specificVehicles, ...vehicles.slice(specificVehicles.length)];
+};
+
+export const generateOBDParameters = () => {
+  return [
+    {
+      vehicle: 'VAN-001',
+      vin: '1GCHK23D7PF123456',
+      rpm: 920,
+      loadPercent: 32,
+      throttlePercent: 14,
+      speedKmh: 38,
+      batteryV: 12.2,
+      coolantC: 93,
+      iatC: 31,
+      mapKPa: 72,
+      fuelPKPa: 380,
+      mafGps: 18.4,
+      fuelRateLph: 3.2,
+      defPercent: null
+    },
+    {
+      vehicle: 'TRK-142',
+      vin: 'IFTSW21R08E899001',
+      rpm: 0,
+      loadPercent: 0,
+      throttlePercent: 0,
+      speedKmh: 0,
+      batteryV: 11.8,
+      coolantC: 40,
+      iatC: 22,
+      mapKPa: 101,
+      fuelPKPa: 420,
+      mafGps: 2.1,
+      fuelRateLph: 0.6,
+      defPercent: 22
+    },
+    {
+      vehicle: 'CAR-227',
+      vin: 'WVWZZZ1JZW000001',
+      rpm: 650,
+      loadPercent: 8,
+      throttlePercent: 3,
+      speedKmh: 0,
+      batteryV: 12.1,
+      coolantC: 88,
+      iatC: 29,
+      mapKPa: 32,
+      fuelPKPa: 340,
+      mafGps: 2.8,
+      fuelRateLph: 0.9,
+      defPercent: null
+    }
+  ];
+};
+
+export const generateAlerts = () => {
+  return [
+    {
+      vehicle: 'VAN-001',
+      alert: 'Engine Fault (P0300)',
+      severity: 'Critical'
+    },
+    {
+      vehicle: 'TRK-142',
+      alert: 'Low Tire Pressure',
+      severity: 'High'
+    },
+    {
+      vehicle: 'CAR-227',
+      alert: 'Battery Low',
+      severity: 'Medium'
+    }
+  ];
+};
+
+export const generateMaintenanceSchedule = () => {
+  return [
+    {
+      task: 'Oil Change',
+      vehicle: 'VAN-001',
+      dueDate: '15/03/2024',
+      priority: 'High',
+      status: 'Overdue'
+    },
+    {
+      task: 'Tire Rotation',
+      vehicle: 'CAR-227',
+      dueDate: '20/04/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Brake Inspection',
+      vehicle: 'TRK-142',
+      dueDate: '25/04/2024',
+      priority: 'High',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Air Filter Change',
+      vehicle: 'VAN-003',
+      dueDate: '28/04/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'DEF System Service',
+      vehicle: 'TRK-142',
+      dueDate: '05/05/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Coolant Flush',
+      vehicle: 'CAR-156',
+      dueDate: '10/05/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Transmission Service',
+      vehicle: 'VAN-001',
+      dueDate: '15/05/2024',
+      priority: 'High',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Battery Check',
+      vehicle: 'CAR-227',
+      dueDate: '18/05/2024',
+      priority: 'Low',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Wheel Alignment',
+      vehicle: 'TRK-089',
+      dueDate: '22/05/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Fuel Filter Change',
+      vehicle: 'VAN-045',
+      dueDate: '25/05/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Spark Plug Replacement',
+      vehicle: 'CAR-227',
+      dueDate: '30/05/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Serpentine Belt',
+      vehicle: 'VAN-001',
+      dueDate: '02/06/2024',
+      priority: 'High',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Cabin Air Filter',
+      vehicle: 'CAR-156',
+      dueDate: '05/06/2024',
+      priority: 'Low',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Differential Service',
+      vehicle: 'TRK-142',
+      dueDate: '08/06/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Power Steering Fluid',
+      vehicle: 'VAN-003',
+      dueDate: '12/06/2024',
+      priority: 'Low',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Wiper Blade Replacement',
+      vehicle: 'CAR-334',
+      dueDate: '15/06/2024',
+      priority: 'Low',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Timing Belt',
+      vehicle: 'VAN-045',
+      dueDate: '18/06/2024',
+      priority: 'Critical',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Shock Absorbers',
+      vehicle: 'TRK-089',
+      dueDate: '22/06/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Ball Joints Inspection',
+      vehicle: 'CAR-445',
+      dueDate: '25/06/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Exhaust System Check',
+      vehicle: 'VAN-078',
+      dueDate: '28/06/2024',
+      priority: 'Low',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Engine Air Filter',
+      vehicle: 'TRK-201',
+      dueDate: '01/07/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'PCV Valve',
+      vehicle: 'CAR-227',
+      dueDate: '05/07/2024',
+      priority: 'Low',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Drive Belt Tensioner',
+      vehicle: 'VAN-001',
+      dueDate: '08/07/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Radiator Hoses',
+      vehicle: 'TRK-142',
+      dueDate: '12/07/2024',
+      priority: 'High',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Thermostat Check',
+      vehicle: 'CAR-156',
+      dueDate: '15/07/2024',
+      priority: 'Low',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Fuel Injector Cleaning',
+      vehicle: 'VAN-003',
+      dueDate: '18/07/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Steering Linkage',
+      vehicle: 'TRK-089',
+      dueDate: '22/07/2024',
+      priority: 'High',
+      status: 'Upcoming'
+    },
+    {
+      task: 'U-Joints Inspection',
+      vehicle: 'CAR-334',
+      dueDate: '25/07/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Catalytic Converter',
+      vehicle: 'VAN-078',
+      dueDate: '28/07/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Oxygen Sensors',
+      vehicle: 'TRK-201',
+      dueDate: '01/08/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'Turbo Inspection',
+      vehicle: 'TRK-089',
+      dueDate: '05/08/2024',
+      priority: 'High',
+      status: 'Upcoming'
+    },
+    {
+      task: 'EGR Valve Cleaning',
+      vehicle: 'VAN-001',
+      dueDate: '08/08/2024',
+      priority: 'Medium',
+      status: 'Upcoming'
+    },
+    {
+      task: 'DPF Regeneration',
+      vehicle: 'TRK-142',
+      dueDate: '12/08/2024',
+      priority: 'High',
+      status: 'Upcoming'
+    }
+  ];
+};
+
+export const generateAlertRules = () => {
+  return [
+    {
+      id: 1,
+      enabled: true,
+      name: 'Overheat',
+      param: 'Coolant (°C)',
+      comparator: '>',
+      threshold: 110,
+      severity: 'Critical',
+      dwell: 5
+    },
+    {
+      id: 2,
+      enabled: true,
+      name: 'Low Battery',
+      param: 'Battery (V)',
+      comparator: '<',
+      threshold: 12,
+      severity: 'High',
+      dwell: 300
+    }
+  ];
+};
+
+export const generateCurrentlyTriggering = () => {
+  return [
+    {
+      vehicle: 'TRK-142',
+      rule: 'Low Battery',
+      severity: 'High'
+    }
+  ];
+};
+
+export const generateFuelConsumptionData = () => {
+  return [
+    { date: 'Apr 1', value: 1.6 },
+    { date: 'Apr 4', value: 2.8 },
+    { date: 'Apr 7', value: 3.1 },
+    { date: 'Apr 10', value: 2.4 },
+    { date: 'Apr 13', value: 2.6 }
+  ];
+};
+
+export const generateCostPerKMData = () => {
+  return [
+    { type: 'Van', cost: 0.24 },
+    { type: 'Truck', cost: 0.18 },
+    { type: 'Car', cost: 0.26 }
+  ];
+};
+
+export const generateFuelIdleVsMovingData = () => {
+  return [
+    { category: 'Moving', fuel: 32.5, percentage: 71.9 },
+    { category: 'Idle', fuel: 12.7, percentage: 28.1 }
+  ];
+};
+
+export const generateFuelEfficiencyTrendData = () => {
+  return [
+    { date: 'Apr 1', efficiency: 8.2, baseline: 9.0 },
+    { date: 'Apr 4', efficiency: 8.7, baseline: 9.0 },
+    { date: 'Apr 7', efficiency: 8.5, baseline: 9.0 },
+    { date: 'Apr 10', efficiency: 8.3, baseline: 9.0 },
+    { date: 'Apr 13', efficiency: 8.6, baseline: 9.0 }
+  ];
+};
+
+export const generateDailyFuelCostData = () => {
+  return [
+    { date: 'Mon', cost: 62.5 },
+    { date: 'Tue', cost: 71.2 },
+    { date: 'Wed', cost: 68.9 },
+    { date: 'Thu', cost: 65.3 },
+    { date: 'Fri', cost: 73.4 },
+    { date: 'Sat', cost: 55.8 },
+    { date: 'Sun', cost: 41.7 }
+  ];
+};
+
+export const generateAlertsOverTimeData = () => {
+  return [
+    { date: 'Sep 21', critical: 0, high: 1, medium: 1, low: 0 },
+    { date: 'Sep 28', critical: 1, high: 0, medium: 2, low: 1 },
+    { date: 'Oct 5', critical: 0, high: 2, medium: 1, low: 0 },
+    { date: 'Oct 12', critical: 1, high: 1, medium: 0, low: 2 },
+    { date: 'Oct 19', critical: 2, high: 2, medium: 1, low: 1 }
+  ];
+};
+
+export const generateDTCDetails = (vehicleId) => {
+  const dtcDatabase = {
+    'VAN-001': [
+      { code: 'P0300', description: 'Random/Multiple Cylinder Misfire Detected', severity: 'Critical', status: 'Active', timestamp: '2 hours ago' },
+      { code: 'P0171', description: 'System Too Lean (Bank 1)', severity: 'Medium', status: 'Active', timestamp: '5 hours ago' }
+    ],
+    'TRK-142': [
+      { code: 'C2120', description: 'Low Tire Pressure Warning', severity: 'High', status: 'Active', timestamp: '1 hour ago' },
+      { code: 'P0401', description: 'DEF System Low Flow', severity: 'High', status: 'Active', timestamp: '3 hours ago' }
+    ],
+    'CAR-227': [
+      { code: 'P0562', description: 'System Voltage Low', severity: 'Medium', status: 'Active', timestamp: '30 min ago' }
+    ],
+    'VAN-003': [
+      { code: 'B1234', description: 'Service Reminder', severity: 'Low', status: 'Pending', timestamp: '1 day ago' }
+    ],
+    'CAR-156': []
+  };
+  
+  return dtcDatabase[vehicleId] || [];
+};
+
+export const generateFleetMetrics = () => {
+  return {
+    // LEVEL 0 - Fleet Overview
+    totalVehicles: 3,
+    vehiclesActive: 2,
+    vehiclesIdle: 1,
+    idlePercentage: 33.3,
+    faultsOverTime: {
+      current: 3,
+      previous: 2,
+      percentChange: 50
+    },
+    maintenanceDue: 2,
+    maintenanceOverdue: 1,
+    maintenancePercentage: 33.3,
+    
+    // LEVEL 1 - Core Fleet KPIs
+    fleetHealthIndex: 66,
+    fuelCostPerKm: 0.23,
+    avgFuelEfficiency: 8.5, // km/L
+    avgFuelEfficiencyL100km: 11.8, // L/100km
+    totalFuelConsumptionDaily: 45.2, // L/day
+    fuelConsumptionMoving: 32.5, // L
+    fuelConsumptionIdle: 12.7, // L
+    idleFuelPercentage: 28.1,
+    totalFuelCostDaily: 67.8, // $ per day
+    fuelCostTrip: 22.6, // $ per trip average
+    
+    // Baseline comparisons
+    baselineFuelEfficiency: 9.0,
+    baselineCostPerKm: 0.20,
+    targetIdlePercentage: 15,
+    fleetAverageFuelEfficiency: 8.5
+  };
+};
+
