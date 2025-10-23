@@ -176,17 +176,17 @@ const Dashboard = () => {
     let data = [];
     
     // Generate data based on date range
-    if (filters.dateRange === 'Last 7 days') {
+    if (filters.dateRange === 'This Week' || filters.dateRange === 'Last Week') {
       data = [
-        { date: 'Oct 15', efficiency: 8.3, baseline: 9.0 },
-        { date: 'Oct 16', efficiency: 8.5, baseline: 9.0 },
-        { date: 'Oct 17', efficiency: 8.2, baseline: 9.0 },
-        { date: 'Oct 18', efficiency: 8.6, baseline: 9.0 },
-        { date: 'Oct 19', efficiency: 8.4, baseline: 9.0 },
-        { date: 'Oct 20', efficiency: 8.7, baseline: 9.0 },
-        { date: 'Oct 21', efficiency: 8.5, baseline: 9.0 }
+        { date: 'Mon', efficiency: 8.3, baseline: 9.0 },
+        { date: 'Tue', efficiency: 8.5, baseline: 9.0 },
+        { date: 'Wed', efficiency: 8.2, baseline: 9.0 },
+        { date: 'Thu', efficiency: 8.6, baseline: 9.0 },
+        { date: 'Fri', efficiency: 8.4, baseline: 9.0 },
+        { date: 'Sat', efficiency: 8.7, baseline: 9.0 },
+        { date: 'Sun', efficiency: 8.5, baseline: 9.0 }
       ];
-    } else if (filters.dateRange === 'Last 90 days') {
+    } else if (filters.dateRange === 'Last 3 Months') {
       data = [
         { date: 'Jul 23', efficiency: 8.0, baseline: 9.0 },
         { date: 'Aug 6', efficiency: 8.3, baseline: 9.0 },
@@ -197,16 +197,21 @@ const Dashboard = () => {
         { date: 'Oct 15', efficiency: 8.6, baseline: 9.0 },
         { date: 'Oct 21', efficiency: 8.5, baseline: 9.0 }
       ];
-    } else if (filters.dateRange === 'Next 30 days') {
+    } else if (filters.dateRange === 'This Year') {
       data = [
-        { date: 'Oct 22', efficiency: 8.5, baseline: 9.0 },
-        { date: 'Oct 28', efficiency: 8.7, baseline: 9.0 },
-        { date: 'Nov 4', efficiency: 8.6, baseline: 9.0 },
-        { date: 'Nov 11', efficiency: 8.8, baseline: 9.0 },
-        { date: 'Nov 18', efficiency: 8.9, baseline: 9.0 }
+        { date: 'Jan', efficiency: 8.0, baseline: 9.0 },
+        { date: 'Feb', efficiency: 8.2, baseline: 9.0 },
+        { date: 'Mar', efficiency: 8.4, baseline: 9.0 },
+        { date: 'Apr', efficiency: 8.3, baseline: 9.0 },
+        { date: 'May', efficiency: 8.5, baseline: 9.0 },
+        { date: 'Jun', efficiency: 8.6, baseline: 9.0 },
+        { date: 'Jul', efficiency: 8.4, baseline: 9.0 },
+        { date: 'Aug', efficiency: 8.7, baseline: 9.0 },
+        { date: 'Sep', efficiency: 8.5, baseline: 9.0 },
+        { date: 'Oct', efficiency: 8.6, baseline: 9.0 }
       ];
     } else {
-      // Last 30 days (default)
+      // This Month / Last Month (default)
       data = [
         { date: 'Sep 21', efficiency: 8.2, baseline: 9.0 },
         { date: 'Sep 28', efficiency: 8.7, baseline: 9.0 },
@@ -230,18 +235,31 @@ const Dashboard = () => {
     let data = generateAlertsOverTimeData();
     
     // Adjust based on date range
-    if (filters.dateRange === 'Last 7 days') {
+    if (filters.dateRange === 'This Week' || filters.dateRange === 'Last Week') {
       data = [
-        { date: 'Oct 15', critical: 0, high: 1, medium: 1, low: 0 },
-        { date: 'Oct 16', critical: 1, high: 0, medium: 0, low: 1 },
-        { date: 'Oct 17', critical: 0, high: 2, medium: 1, low: 0 },
-        { date: 'Oct 18', critical: 0, high: 1, medium: 2, low: 0 },
-        { date: 'Oct 19', critical: 1, high: 1, medium: 0, low: 1 },
-        { date: 'Oct 20', critical: 2, high: 0, medium: 1, low: 0 },
-        { date: 'Oct 21', critical: 1, high: 2, medium: 1, low: 1 }
+        { date: 'Mon', critical: 0, high: 1, medium: 1, low: 0 },
+        { date: 'Tue', critical: 1, high: 0, medium: 0, low: 1 },
+        { date: 'Wed', critical: 0, high: 2, medium: 1, low: 0 },
+        { date: 'Thu', critical: 0, high: 1, medium: 2, low: 0 },
+        { date: 'Fri', critical: 1, high: 1, medium: 0, low: 1 },
+        { date: 'Sat', critical: 2, high: 0, medium: 1, low: 0 },
+        { date: 'Sun', critical: 1, high: 2, medium: 1, low: 1 }
       ];
-    } else if (filters.dateRange === 'Last 90 days') {
+    } else if (filters.dateRange === 'Last 3 Months') {
       data = [
+        { date: 'Jul', critical: 1, high: 2, medium: 3, low: 2 },
+        { date: 'Aug', critical: 2, high: 3, medium: 2, low: 1 },
+        { date: 'Sep', critical: 1, high: 2, medium: 4, low: 3 },
+        { date: 'Oct', critical: 3, high: 3, medium: 2, low: 2 }
+      ];
+    } else if (filters.dateRange === 'This Year') {
+      data = [
+        { date: 'Jan', critical: 0, high: 1, medium: 2, low: 1 },
+        { date: 'Feb', critical: 1, high: 2, medium: 1, low: 0 },
+        { date: 'Mar', critical: 0, high: 1, medium: 3, low: 2 },
+        { date: 'Apr', critical: 2, high: 2, medium: 1, low: 1 },
+        { date: 'May', critical: 1, high: 1, medium: 2, low: 2 },
+        { date: 'Jun', critical: 1, high: 3, medium: 1, low: 1 },
         { date: 'Jul', critical: 1, high: 2, medium: 3, low: 2 },
         { date: 'Aug', critical: 2, high: 3, medium: 2, low: 1 },
         { date: 'Sep', critical: 1, high: 2, medium: 4, low: 3 },
@@ -256,32 +274,38 @@ const Dashboard = () => {
     let data = [];
     
     // Generate data based on date range
-    if (filters.dateRange === 'Last 7 days') {
+    if (filters.dateRange === 'This Week' || filters.dateRange === 'Last Week') {
       data = [
-        { date: 'Oct 15', cost: 65.2 },
-        { date: 'Oct 16', cost: 71.8 },
-        { date: 'Oct 17', cost: 59.3 },
-        { date: 'Oct 18', cost: 68.5 },
-        { date: 'Oct 19', cost: 62.7 },
-        { date: 'Oct 20', cost: 70.1 },
-        { date: 'Oct 21', cost: 64.9 }
+        { date: 'Mon', cost: 62.5 },
+        { date: 'Tue', cost: 71.2 },
+        { date: 'Wed', cost: 68.9 },
+        { date: 'Thu', cost: 65.3 },
+        { date: 'Fri', cost: 73.4 },
+        { date: 'Sat', cost: 55.8 },
+        { date: 'Sun', cost: 41.7 }
       ];
-    } else if (filters.dateRange === 'Last 90 days') {
+    } else if (filters.dateRange === 'Last 3 Months') {
       data = [
         { date: 'Jul', cost: 58.5 },
         { date: 'Aug', cost: 64.2 },
         { date: 'Sep', cost: 67.8 },
         { date: 'Oct', cost: 69.3 }
       ];
-    } else if (filters.dateRange === 'Next 30 days') {
+    } else if (filters.dateRange === 'This Year') {
       data = [
-        { date: 'Week 1', cost: 68.0 },
-        { date: 'Week 2', cost: 72.0 },
-        { date: 'Week 3', cost: 65.0 },
-        { date: 'Week 4', cost: 70.0 }
+        { date: 'Jan', cost: 55.2 },
+        { date: 'Feb', cost: 58.4 },
+        { date: 'Mar', cost: 61.3 },
+        { date: 'Apr', cost: 59.8 },
+        { date: 'May', cost: 63.5 },
+        { date: 'Jun', cost: 66.7 },
+        { date: 'Jul', cost: 58.5 },
+        { date: 'Aug', cost: 64.2 },
+        { date: 'Sep', cost: 67.8 },
+        { date: 'Oct', cost: 69.3 }
       ];
     } else {
-      // Last 30 days - weekly breakdown
+      // This Month / Last Month - weekly breakdown
       data = [
         { date: 'Week 1', cost: 62.5 },
         { date: 'Week 2', cost: 71.2 },
