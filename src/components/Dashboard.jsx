@@ -36,7 +36,7 @@ const Dashboard = () => {
   const [filters, setFilters] = useState({
     vehicleType: 'All',
     fuelType: 'All',
-    dateRange: 'Last 30 days'
+    dateRange: 'This Month'
   });
 
   // Apply filters to data
@@ -849,7 +849,7 @@ const Dashboard = () => {
           >
             <Filter className="w-4 h-4" />
             Filters
-            {(filters.vehicleType !== 'All' || filters.fuelType !== 'All' || filters.dateRange !== 'Last 30 days') && (
+            {(filters.vehicleType !== 'All' || filters.fuelType !== 'All' || filters.dateRange !== 'This Month') && (
               <span className="w-2 h-2 bg-[#5b4b9d] rounded-full"></span>
             )}
           </button>
@@ -880,7 +880,7 @@ const Dashboard = () => {
                 setFilters({
                   vehicleType: 'All',
                   fuelType: 'All',
-                  dateRange: 'Last 30 days'
+                  dateRange: 'This Month'
                 });
               }}
               className="text-xs text-[#5b4b9d] font-semibold hover:text-[#6d5ba7] transition-colors"
@@ -920,7 +920,7 @@ const Dashboard = () => {
               </select>
             </div>
 
-            {/* Date Range Filter */}
+            {/* Date Range */}
             <div>
               <label className="block text-xs text-gray-600 font-medium mb-2">Date Range</label>
               <select
@@ -928,11 +928,12 @@ const Dashboard = () => {
                 onChange={(e) => setFilters({ ...filters, dateRange: e.target.value })}
                 className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#5b4b9d] focus:ring-1 focus:ring-[#5b4b9d] transition-colors"
               >
-                <option value="Last 7 days">Last 7 days</option>
-                <option value="Last 30 days">Last 30 days</option>
-                <option value="Last 90 days">Last 90 days</option>
-                <option value="Next 30 days">Next 30 days (Forecast)</option>
-                <option value="Custom">Custom Range</option>
+                <option value="This Week">This Week</option>
+                <option value="Last Week">Last Week</option>
+                <option value="This Month">This Month</option>
+                <option value="Last Month">Last Month</option>
+                <option value="Last 3 Months">Last 3 Months</option>
+                <option value="This Year">This Year</option>
               </select>
             </div>
           </div>
@@ -962,18 +963,18 @@ const Dashboard = () => {
                 </button>
               </span>
             )}
-            {filters.dateRange !== 'Last 30 days' && (
+            {filters.dateRange !== 'This Month' && (
               <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-[#5b4b9d] border border-purple-300 rounded-md text-xs font-medium">
                 Period: {filters.dateRange}
                 <button 
-                  onClick={() => setFilters({ ...filters, dateRange: 'Last 30 days' })}
+                  onClick={() => setFilters({ ...filters, dateRange: 'This Month' })}
                   className="hover:text-cyan-300"
                 >
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
-            {filters.vehicleType === 'All' && filters.fuelType === 'All' && filters.dateRange === 'Last 30 days' && (
+            {filters.vehicleType === 'All' && filters.fuelType === 'All' && filters.dateRange === 'This Month' && (
               <span className="text-xs text-slate-500 italic">No filters applied (showing all data)</span>
             )}
           </div>
@@ -1069,7 +1070,7 @@ const Dashboard = () => {
       )}
 
       {/* Filter Applied Banner */}
-      {(filters.vehicleType !== 'All' || filters.fuelType !== 'All' || filters.dateRange !== 'Last 30 days') && (
+      {(filters.vehicleType !== 'All' || filters.fuelType !== 'All' || filters.dateRange !== 'This Month') && (
         <div className="bg-purple-50 border border-purple-200 rounded-xl px-4 py-2.5">
           <p className="text-xs text-[#5b4b9d] font-semibold flex items-center gap-2">
             <Filter className="w-4 h-4" />
@@ -1077,7 +1078,7 @@ const Dashboard = () => {
               Displaying filtered data: 
               {filters.vehicleType !== 'All' && ` ${filters.vehicleType} vehicles`}
               {filters.fuelType !== 'All' && ` • ${filters.fuelType} fuel type`}
-              {filters.dateRange !== 'Last 30 days' && ` • ${filters.dateRange}`}
+              {filters.dateRange !== 'This Month' && ` • ${filters.dateRange}`}
             </span>
           </p>
         </div>

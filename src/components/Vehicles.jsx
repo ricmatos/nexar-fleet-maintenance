@@ -1,26 +1,82 @@
 import React, { useState } from 'react';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Search, ChevronDown, ChevronUp, Filter, X, Gauge, Zap, Thermometer, Droplet, Wind, Activity, AlertTriangle, Download, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, Filter, X, Gauge, Zap, Thermometer, Droplet, Wind, Activity, AlertTriangle, Download, ArrowUpDown, ArrowUp, ArrowDown, HelpCircle } from 'lucide-react';
 import { generateVehicleData, generateDTCDetails } from '../data/dummyData';
 
 const Vehicles = () => {
   const [expandedRow, setExpandedRow] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showDTCDetails, setShowDTCDetails] = useState(null);
+  const [showMetricHelp, setShowMetricHelp] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
   const rowsPerPage = 20;
+  
   const [filters, setFilters] = useState({
     vehicleType: 'All',
     status: 'All',
     fuelType: 'All',
     alertSeverity: 'All',
-    dateRange: 'Last 24 hours'
+    dateRange: 'This Month'
   });
 
   const allVehicles = generateVehicleData();
+
+  // Generate historical DTCs for a vehicle
+  const generateHistoricalDTCs = (vehicleId) => {
+    const dtcs = generateDTCDetails(vehicleId);
+    const historical = [];
+    
+    // Generate historical data for each DTC
+    dtcs.forEach(dtc => {
+      const firstSeen = new Date();
+      firstSeen.setDate(firstSeen.getDate() - Math.floor(Math.random() * 30));
+      
+      // If status is Active, Last Seen should be empty (still active)
+      // Otherwise, generate a last seen date
+      const isStillActive = dtc.status === 'Active' || Math.random() > 0.3;
+      const lastSeen = isStillActive ? null : (() => {
+        const date = new Date();
+        date.setDate(date.getDate() - Math.floor(Math.random() * 5));
+        return date.toISOString().split('T')[0];
+      })();
+      
+      historical.push({
+        ...dtc,
+        firstSeen: firstSeen.toISOString().split('T')[0],
+        lastSeen: lastSeen,
+        occurrences: Math.floor(Math.random() * 20) + 1,
+        isActive: isStillActive
+      });
+    });
+    
+    return historical;
+  };
+
+  // Download historical DTCs for a vehicle
+  const downloadHistoricalDTCs = (vehicleId) => {
+    const historicalDTCs = generateHistoricalDTCs(vehicleId);
+    const headers = ['DTC Code', 'Description', 'Severity', 'First Seen', 'Last Seen', 'Occurrences', 'Status'];
+    const csvData = historicalDTCs.map(dtc => [
+      dtc.code,
+      dtc.description,
+      dtc.severity,
+      dtc.firstSeen,
+      dtc.lastSeen || 'Still Active',
+      dtc.occurrences,
+      dtc.isActive ? 'Active' : 'Resolved'
+    ]);
+    
+    const csv = [headers, ...csvData].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${vehicleId}_historical_dtcs_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+  };
 
   // Download CSV function
   const downloadCSV = () => {
@@ -186,16 +242,37 @@ const Vehicles = () => {
 
   // Generate time-series data for charts based on date range
   const generateTimeSeriesData = (vehicle) => {
-    const dataPoints = filters.dateRange === 'Last 24 hours' ? 24 : 
-                       filters.dateRange === 'Last 7 days' ? 7 : 30;
+    let dataPoints, timeLabel;
+    
+    switch (filters.dateRange) {
+      case 'This Week':
+      case 'Last Week':
+        dataPoints = 7;
+        break;
+      case 'This Month':
+      case 'Last Month':
+        dataPoints = 30;
+        break;
+      case 'Last 3 Months':
+        dataPoints = 90;
+        break;
+      case 'This Year':
+        dataPoints = 12;
+        break;
+      default:
+        dataPoints = 30;
+    }
     
     const data = [];
     for (let i = 0; i < dataPoints; i++) {
-      const timeLabel = filters.dateRange === 'Last 24 hours' 
-        ? `${i}:00` 
-        : filters.dateRange === 'Last 7 days'
-        ? `Day ${i + 1}`
-        : `Day ${i + 1}`;
+      if (filters.dateRange === 'This Year') {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        timeLabel = months[i];
+      } else if (filters.dateRange === 'Last 3 Months') {
+        timeLabel = `Day ${i + 1}`;
+      } else {
+        timeLabel = `Day ${i + 1}`;
+      }
       
       data.push({
         time: timeLabel,
@@ -387,15 +464,18 @@ const Vehicles = () => {
 
             {/* Date Range for Metrics */}
             <div>
-              <label className="block text-xs text-gray-600 font-medium mb-2">Metrics Scope</label>
+              <label className="block text-xs text-gray-600 font-medium mb-2">Date Range</label>
               <select
                 value={filters.dateRange}
                 onChange={(e) => setFilters({ ...filters, dateRange: e.target.value })}
                 className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#5b4b9d] focus:ring-1 focus:ring-[#5b4b9d] transition-colors"
               >
-                <option value="Last 24 hours">Last 24 hours</option>
-                <option value="Last 7 days">Last 7 days</option>
-                <option value="Last 30 days">Last 30 days</option>
+                <option value="This Week">This Week</option>
+                <option value="Last Week">Last Week</option>
+                <option value="This Month">This Month</option>
+                <option value="Last Month">Last Month</option>
+                <option value="Last 3 Months">Last 3 Months</option>
+                <option value="This Year">This Year</option>
               </select>
             </div>
           </div>
@@ -435,15 +515,15 @@ const Vehicles = () => {
                 </button>
               </span>
             )}
-            {filters.dateRange !== 'Last 24 hours' && (
+            {filters.dateRange !== 'This Month' && (
               <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-[#5b4b9d] border border-purple-300 rounded-md text-xs font-medium">
                 Period: {filters.dateRange}
-                <button onClick={() => setFilters({ ...filters, dateRange: 'Last 24 hours' })}>
+                <button onClick={() => setFilters({ ...filters, dateRange: 'This Month' })}>
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
-            {filters.vehicleType === 'All' && filters.status === 'All' && filters.fuelType === 'All' && filters.alertSeverity === 'All' && filters.dateRange === 'Last 24 hours' && (
+            {filters.vehicleType === 'All' && filters.status === 'All' && filters.fuelType === 'All' && filters.alertSeverity === 'All' && filters.dateRange === 'This Month' && (
               <span className="text-xs text-gray-500 italic">No filters applied</span>
             )}
           </div>
@@ -462,52 +542,220 @@ const Vehicles = () => {
                 <th className="px-4 py-3 font-bold">Camera SN</th>
                 <th className="px-4 py-3 font-bold">Status</th>
                 <th className="px-4 py-3 font-bold">
-                  <button onClick={() => handleSort('health')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
-                    Health
-                    {sortColumn === 'health' ? (
-                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                    ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleSort('health')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
+                      Health
+                      {sortColumn === 'health' ? (
+                        sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                      ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
+                    </button>
+                    <div className="relative inline-block">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowMetricHelp(showMetricHelp === 'health' ? null : 'health');
+                        }}
+                        className="text-gray-400 hover:text-[#5b4b9d] transition-colors"
+                      >
+                        <HelpCircle className="w-4 h-4" />
+                      </button>
+                      {showMetricHelp === 'health' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setShowMetricHelp(null)} />
+                          <div className="absolute z-50 left-0 top-6 w-80 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
+                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Health Index</h4>
+                            <p className="text-xs text-gray-900 leading-relaxed mb-3">
+                              Composite score (0-100) representing overall vehicle condition based on OBD-II diagnostics, maintenance status, and operational parameters. Lower scores indicate more attention needed.
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mb-1">CALCULATION:</p>
+                            <p className="text-xs text-indigo-700 font-mono">
+                              Weighted avg of: engine faults (30%), sensor health (25%), battery voltage (15%), oil pressure (15%), coolant temp (10%), maintenance (5%)
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </th>
                 <th className="px-4 py-3 font-bold">
-                  <button onClick={() => handleSort('costKm')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
-                    Cost/km
-                    {sortColumn === 'costKm' ? (
-                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                    ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleSort('costKm')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
+                      Cost/km
+                      {sortColumn === 'costKm' ? (
+                        sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                      ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
+                    </button>
+                    <div className="relative inline-block">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowMetricHelp(showMetricHelp === 'costKm' ? null : 'costKm');
+                        }}
+                        className="text-gray-400 hover:text-[#5b4b9d] transition-colors"
+                      >
+                        <HelpCircle className="w-4 h-4" />
+                      </button>
+                      {showMetricHelp === 'costKm' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setShowMetricHelp(null)} />
+                          <div className="absolute z-50 left-0 top-6 w-80 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
+                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Cost per Kilometer</h4>
+                            <p className="text-xs text-gray-900 leading-relaxed mb-3">
+                              Operational fuel cost efficiency metric showing how much it costs to operate this vehicle per kilometer traveled. Critical for fleet budget optimization and route planning.
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mb-1">CALCULATION:</p>
+                            <p className="text-xs text-indigo-700 font-mono">
+                              Total Fuel Cost ÷ Distance Traveled (from odometer PID 01-A6)
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </th>
                 <th className="px-4 py-3 font-bold">
-                  <button onClick={() => handleSort('efficiency')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
-                    Efficiency
-                    {sortColumn === 'efficiency' ? (
-                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                    ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleSort('efficiency')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
+                      Efficiency
+                      {sortColumn === 'efficiency' ? (
+                        sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                      ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
+                    </button>
+                    <div className="relative inline-block">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowMetricHelp(showMetricHelp === 'efficiency' ? null : 'efficiency');
+                        }}
+                        className="text-gray-400 hover:text-[#5b4b9d] transition-colors"
+                      >
+                        <HelpCircle className="w-4 h-4" />
+                      </button>
+                      {showMetricHelp === 'efficiency' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setShowMetricHelp(null)} />
+                          <div className="absolute z-50 left-0 top-6 w-80 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
+                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Fuel Efficiency</h4>
+                            <p className="text-xs text-gray-900 leading-relaxed mb-3">
+                              Average distance traveled per liter of fuel consumed. Key metric for identifying fuel-inefficient vehicles, poor driving habits, or mechanical issues affecting consumption.
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mb-1">CALCULATION:</p>
+                            <p className="text-xs text-indigo-700 font-mono">
+                              Distance (km) ÷ Fuel Used (L) | From: Speed (PID 01-0D), MAF (PID 01-10), Fuel Rate (PID 01-5E)
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </th>
                 <th className="px-4 py-3 font-bold">
-                  <button onClick={() => handleSort('fuelDaily')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
-                    Fuel Daily
-                    {sortColumn === 'fuelDaily' ? (
-                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                    ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleSort('fuelDaily')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
+                      Fuel Daily
+                      {sortColumn === 'fuelDaily' ? (
+                        sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                      ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
+                    </button>
+                    <div className="relative inline-block">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowMetricHelp(showMetricHelp === 'fuelDaily' ? null : 'fuelDaily');
+                        }}
+                        className="text-gray-400 hover:text-[#5b4b9d] transition-colors"
+                      >
+                        <HelpCircle className="w-4 h-4" />
+                      </button>
+                      {showMetricHelp === 'fuelDaily' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setShowMetricHelp(null)} />
+                          <div className="absolute z-50 left-0 top-6 w-80 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
+                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Daily Fuel Consumption</h4>
+                            <p className="text-xs text-gray-900 leading-relaxed mb-3">
+                              Total liters of fuel consumed per day, combining both moving and idle consumption. Useful for tracking fuel usage patterns and identifying vehicles with excessive consumption.
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mb-1">CALCULATION:</p>
+                            <p className="text-xs text-indigo-700 font-mono">
+                              Σ Fuel Flow Rate (PID 01-5E) × Engine Runtime (PID 01-1F) over 24h
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </th>
                 <th className="px-4 py-3 font-bold">
-                  <button onClick={() => handleSort('movingIdle')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
-                    Moving/Idle
-                    {sortColumn === 'movingIdle' ? (
-                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                    ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleSort('movingIdle')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
+                      Moving/Idle
+                      {sortColumn === 'movingIdle' ? (
+                        sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                      ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
+                    </button>
+                    <div className="relative inline-block">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowMetricHelp(showMetricHelp === 'movingIdle' ? null : 'movingIdle');
+                        }}
+                        className="text-gray-400 hover:text-[#5b4b9d] transition-colors"
+                      >
+                        <HelpCircle className="w-4 h-4" />
+                      </button>
+                      {showMetricHelp === 'movingIdle' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setShowMetricHelp(null)} />
+                          <div className="absolute z-50 left-0 top-6 w-80 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
+                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Moving vs Idle Fuel</h4>
+                            <p className="text-xs text-gray-900 leading-relaxed mb-3">
+                              Breakdown of fuel consumption between productive movement and non-productive idling. High idle fuel indicates potential waste from extended idle times, impacting operational costs.
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mb-1">CALCULATION:</p>
+                            <p className="text-xs text-indigo-700 font-mono">
+                              Fuel when Speed (PID 01-0D) &gt; 0 vs Speed = 0 | Fuel Flow: PID 01-5E
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </th>
                 <th className="px-4 py-3 font-bold">
-                  <button onClick={() => handleSort('costDaily')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
-                    Cost Daily
-                    {sortColumn === 'costDaily' ? (
-                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                    ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleSort('costDaily')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
+                      Cost Daily
+                      {sortColumn === 'costDaily' ? (
+                        sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                      ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
+                    </button>
+                    <div className="relative inline-block">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowMetricHelp(showMetricHelp === 'costDaily' ? null : 'costDaily');
+                        }}
+                        className="text-gray-400 hover:text-[#5b4b9d] transition-colors"
+                      >
+                        <HelpCircle className="w-4 h-4" />
+                      </button>
+                      {showMetricHelp === 'costDaily' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setShowMetricHelp(null)} />
+                          <div className="absolute z-50 left-0 top-6 w-80 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
+                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Daily Fuel Cost</h4>
+                            <p className="text-xs text-gray-900 leading-relaxed mb-3">
+                              Total monetary cost of fuel consumed per day. Essential for budgeting and identifying high-cost vehicles that may need efficiency improvements or route optimization.
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mb-1">CALCULATION:</p>
+                            <p className="text-xs text-indigo-700 font-mono">
+                              Daily Fuel Consumption (L) × Current Fuel Price ($/L)
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </th>
                 <th className="px-4 py-3 font-bold">
                   <button onClick={() => handleSort('alerts')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
@@ -594,7 +842,7 @@ const Vehicles = () => {
                             <h4 className="text-sm font-bold text-gray-900">
                               Telematics Trends - {filters.dateRange}
                             </h4>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-gray-500 italic">
                               Current values shown in real-time
                             </div>
                           </div>
@@ -699,14 +947,21 @@ const Vehicles = () => {
                               </ResponsiveContainer>
                             </div>
 
-                            {/* Chart 6: Active DTCs */}
+                            {/* Chart 6: Active Alerts */}
                             <div 
-                              className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer hover:border-purple-300 transition-colors"
-                              onClick={() => setShowDTCDetails(showDTCDetails === vehicle.id ? null : vehicle.id)}
+                              className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative"
                             >
-                              <div className="flex items-center gap-2 mb-3">
-                                <AlertTriangle className="w-4 h-4 text-red-500" />
-                                <h5 className="text-sm font-bold text-gray-900">Active DTCs</h5>
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <AlertTriangle className="w-4 h-4 text-red-500" />
+                                  <h5 className="text-sm font-bold text-gray-900">Active Alerts (DTCs and Faults)</h5>
+                                </div>
+                                <button
+                                  onClick={() => setShowDTCDetails(showDTCDetails === vehicle.id ? null : vehicle.id)}
+                                  className="px-3 py-1 bg-[#5b4b9d] text-white rounded-lg hover:bg-[#6d5ba7] transition-colors text-xs font-semibold"
+                                >
+                                  Learn More
+                                </button>
                               </div>
                               <ResponsiveContainer width="100%" height={180}>
                                 <LineChart data={generateTimeSeriesData(vehicle)}>
@@ -715,7 +970,7 @@ const Vehicles = () => {
                                   <YAxis stroke="#374151" style={{ fontSize: '10px', fontWeight: '600' }} domain={[0, 5]} />
                                   <Tooltip content={<CustomTooltip />} />
                                   <Legend wrapperStyle={{ fontSize: '10px', fontWeight: '600', color: '#374151' }} />
-                                  <Line type="monotone" dataKey="dtcCount" stroke="#dc2626" strokeWidth={2} name="DTC Count" dot={{ fill: '#dc2626', r: 3 }} />
+                                  <Line type="monotone" dataKey="dtcCount" stroke="#dc2626" strokeWidth={2} name="Alert Count" dot={{ fill: '#dc2626', r: 3 }} />
                                 </LineChart>
                               </ResponsiveContainer>
                             </div>
@@ -728,52 +983,67 @@ const Vehicles = () => {
                                 className="fixed inset-0 bg-black/50 z-50" 
                                 onClick={() => setShowDTCDetails(null)}
                               />
-                              <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[80vh] overflow-auto">
+                              <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-3xl max-h-[80vh] overflow-auto">
                                 <div className="bg-white border border-red-200 rounded-xl p-6 shadow-2xl">
                                   <div className="flex items-center justify-between mb-4">
                                     <h5 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                       <AlertTriangle className="w-5 h-5 text-red-500" />
-                                      Diagnostic Trouble Codes - {vehicle.id}
+                                      Active Alerts (DTCs and Faults) - {vehicle.id}
                                     </h5>
-                                    <button
-                                      onClick={() => setShowDTCDetails(null)}
-                                      className="text-gray-400 hover:text-gray-600 transition-colors"
-                                    >
-                                      <X className="w-5 h-5" />
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          downloadHistoricalDTCs(vehicle.id);
+                                        }}
+                                        className="flex items-center gap-2 px-3 py-1.5 bg-[#5b4b9d] text-white rounded-lg hover:bg-[#6d5ba7] transition-colors text-xs font-semibold"
+                                        title="Download Historical Alerts"
+                                      >
+                                        <Download className="w-4 h-4" />
+                                        Download History
+                                      </button>
+                                      <button
+                                        onClick={() => setShowDTCDetails(null)}
+                                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                                      >
+                                        <X className="w-5 h-5" />
+                                      </button>
+                                    </div>
                                   </div>
-                                  {generateDTCDetails(vehicle.id).length > 0 ? (
-                                    <div className="space-y-3">
-                                      {generateDTCDetails(vehicle.id).map((dtc, idx) => (
-                                        <div key={idx} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                          <div className="flex items-start justify-between mb-2">
-                                            <div className="flex items-center gap-3">
-                                              <div className="font-mono text-sm font-bold text-gray-900 bg-white px-2 py-1 rounded border border-gray-300">
-                                                {dtc.code}
-                                              </div>
-                                              <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${
-                                                dtc.severity === 'Critical'
-                                                  ? 'bg-red-50 text-red-700 border-red-600'
-                                                  : dtc.severity === 'High'
-                                                  ? 'bg-orange-50 text-orange-700 border-orange-600'
-                                                  : dtc.severity === 'Medium'
-                                                  ? 'bg-yellow-50 text-yellow-700 border-yellow-600'
-                                                  : 'bg-blue-50 text-blue-700 border-blue-600'
-                                              }`}>
-                                                {dtc.severity}
-                                              </span>
-                                              <span className="text-xs text-gray-500 font-medium">{dtc.status}</span>
-                                            </div>
-                                            <div className="text-xs text-gray-500">{dtc.timestamp}</div>
+                                  <div className="mb-4 text-xs text-gray-600 bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
+                                    📅 Data range: {filters.dateRange}
+                                  </div>
+                                  {generateHistoricalDTCs(vehicle.id).length > 0 ? (
+                                    <div className="space-y-2">
+                                      {generateHistoricalDTCs(vehicle.id).map((dtc, idx) => (
+                                        <div key={idx} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                          <div className="flex items-start gap-2 mb-2">
+                                            <span className="font-mono text-sm font-bold text-gray-900">{dtc.code}</span>
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
+                                              dtc.severity === 'Critical'
+                                                ? 'bg-red-100 text-red-700'
+                                                : dtc.severity === 'High'
+                                                ? 'bg-orange-100 text-orange-700'
+                                                : dtc.severity === 'Medium'
+                                                ? 'bg-yellow-100 text-yellow-700'
+                                                : 'bg-blue-100 text-blue-700'
+                                            }`}>
+                                              {dtc.severity}
+                                            </span>
+                                            <span className="text-sm text-gray-700 font-medium flex-1">{dtc.description}</span>
                                           </div>
-                                          <p className="text-sm text-gray-700 font-medium">{dtc.description}</p>
+                                          <div className="text-xs text-gray-600">
+                                            <span className="font-semibold">First Seen:</span> {dtc.firstSeen}
+                                            <span className="mx-2">•</span>
+                                            <span className="font-semibold">Last Seen:</span> {dtc.lastSeen || <span className="text-emerald-600 font-semibold">Still Active</span>}
+                                          </div>
                                         </div>
                                       ))}
                                     </div>
                                   ) : (
                                     <div className="text-center py-12 text-gray-500">
                                       <AlertTriangle className="w-16 h-16 mx-auto mb-3 text-gray-300" />
-                                      <p className="text-base font-semibold">No active DTCs detected</p>
+                                      <p className="text-base font-semibold">No active alerts detected</p>
                                       <p className="text-sm">This vehicle is operating normally</p>
                                     </div>
                                   )}
@@ -825,7 +1095,7 @@ const Vehicles = () => {
                                 <div className="text-sm font-bold text-gray-900">{vehicle.odometerKm.toLocaleString()} km</div>
                               </div>
                               <div className="text-center">
-                                <div className="text-xs text-gray-600 font-semibold">DTCs</div>
+                                <div className="text-xs text-gray-600 font-semibold">Alerts</div>
                                 <div className={`text-sm font-bold ${vehicle.activeDTCs > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
                                   {vehicle.activeDTCs}
                                 </div>
