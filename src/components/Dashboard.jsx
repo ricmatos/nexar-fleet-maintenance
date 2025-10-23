@@ -410,8 +410,8 @@ const Dashboard = () => {
             )}
           </div>
         </div>
-        <div className="p-2 rounded-lg bg-gray-800">
-          <Icon className="w-4 h-4 text-white" />
+        <div className="p-1.5 rounded-lg bg-gray-800">
+          <Icon className="w-3.5 h-3.5 text-white" />
         </div>
       </div>
     </div>
