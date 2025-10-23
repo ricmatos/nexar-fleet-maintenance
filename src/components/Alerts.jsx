@@ -141,10 +141,12 @@ const Alerts = () => {
     { id: 9, type: 'Alert', enabled: true, category: 'Battery Voltage', name: 'Overvoltage', condition: '> 15.5V', threshold1: 15.5, unit1: 'V', threshold2: 5, unit2: 's', severity: 'Critical', pid: '01-42', useCase: 'Charging fault' },
     { id: 10, type: 'Alert', enabled: true, category: 'Battery Voltage', name: 'Low Voltage (Discharge)', condition: '< 11.8V (OFF)', threshold1: 11.8, unit1: 'V', threshold2: 0, unit2: 's', severity: 'High', pid: '01-42', useCase: 'Battery failure' },
     
-    // Coolant Temperature Alerts
-    { id: 12, type: 'Alert', enabled: true, category: 'Coolant Temp', name: 'Overheat Critical', condition: '> 110°C', threshold1: 110, unit1: '°C', threshold2: 5, unit2: 's', severity: 'Critical', pid: '01-05', useCase: 'Detect overheating' },
-    { id: 14, type: 'Alert', enabled: false, category: 'Coolant Temp', name: 'Cold Start Warm-Up', condition: '< 40°C for > 5 min after start', threshold1: 40, unit1: '°C', threshold2: 300, unit2: 's', severity: 'Low', pid: '01-05', useCase: 'Thermostat issue' },
-    { id: 29, type: 'Alert', enabled: true, category: 'Coolant Temp', name: 'Coolant Sensor Drift', condition: 'Stable reading > 30 min = sensor stuck', threshold1: 30, unit1: 'min', threshold2: null, unit2: '', severity: 'Medium', pid: '01-05', useCase: 'Sensor stuck detection' },
+    // Temperature Alerts
+    { id: 12, type: 'Alert', enabled: true, category: 'Temperature', name: 'Overheat Critical', condition: '> 110°C', threshold1: 110, unit1: '°C', threshold2: 5, unit2: 's', severity: 'Critical', pid: '01-05', useCase: 'Detect overheating' },
+    { id: 14, type: 'Alert', enabled: false, category: 'Temperature', name: 'Cold Start Warm-Up', condition: '< 40°C for > 5 min after start', threshold1: 40, unit1: '°C', threshold2: 300, unit2: 's', severity: 'Low', pid: '01-05', useCase: 'Thermostat issue' },
+    { id: 29, type: 'Alert', enabled: true, category: 'Temperature', name: 'Coolant Sensor Drift', condition: 'Stable reading > 30 min = sensor stuck', threshold1: 30, unit1: 'min', threshold2: null, unit2: '', severity: 'Medium', pid: '01-05', useCase: 'Sensor stuck detection' },
+    { id: 27, type: 'Alert', enabled: true, category: 'Temperature', name: 'IAT Overheat Under Load', condition: '> 70°C + Load > 80%', threshold1: 70, unit1: '°C', threshold2: 60, unit2: 's', severity: 'Critical', pid: '01-0F, 01-04', useCase: 'Turbo/engine analytics' },
+    { id: 28, type: 'Alert', enabled: false, category: 'Temperature', name: 'High IAT', condition: 'IAT - Ambient > 40°C', threshold1: 40, unit1: '°C', threshold2: 120, unit2: 's', severity: 'High', pid: '01-0F, 01-46', useCase: 'Intercooler inefficiency' },
     
     // Oil Pressure Alerts
     { id: 15, type: 'Alert', enabled: true, category: 'Oil Pressure', name: 'Low Oil Pressure', condition: '< 20 psi for > 5s', threshold1: 20, unit1: 'psi', threshold2: 5, unit2: 's', severity: 'Critical', pid: 'SPN 100', useCase: 'Predictive maintenance' },
@@ -154,19 +156,13 @@ const Alerts = () => {
     
     // Fuel Level Alerts
     { id: 18, type: 'Alert', enabled: false, category: 'Fuel Level', name: 'Fuel Theft', condition: 'Drop > 10% in < 2 min & Speed = 0', threshold1: 10, unit1: '%', threshold2: 120, unit2: 's', severity: 'High', pid: '01-2F, 01-0D', useCase: 'Theft detection' },
-    
-    // DEF Level Alerts
-    { id: 20, type: 'Alert', enabled: true, category: 'DEF Level', name: 'DEF Empty', condition: '< 5%', threshold1: 5, unit1: '%', threshold2: 0, unit2: 's', severity: 'Critical', pid: '01-52', useCase: 'Compliance / derate imminent' },
-    { id: 21, type: 'Alert', enabled: true, category: 'DEF Level', name: 'DEF Low', condition: '< 10%', threshold1: 10, unit1: '%', threshold2: 0, unit2: 's', severity: 'High', pid: '01-52', useCase: 'Low DEF warning' },
-    { id: 22, type: 'Alert', enabled: false, category: 'DEF Level', name: 'DEF Consumption Irregularity', condition: 'No DEF drop over > 10h engine run', threshold1: 0, unit1: '%', threshold2: 36000, unit2: 's', severity: 'Medium', pid: '01-52, 01-1F', useCase: 'Dosing system fault' },
+    { id: 20, type: 'Alert', enabled: true, category: 'Fuel Level', name: 'DEF Empty', condition: '< 5%', threshold1: 5, unit1: '%', threshold2: 0, unit2: 's', severity: 'Critical', pid: '01-52', useCase: 'Compliance / derate imminent' },
+    { id: 21, type: 'Alert', enabled: true, category: 'Fuel Level', name: 'DEF Low', condition: '< 10%', threshold1: 10, unit1: '%', threshold2: 0, unit2: 's', severity: 'High', pid: '01-52', useCase: 'Low DEF warning' },
+    { id: 22, type: 'Alert', enabled: false, category: 'Fuel Level', name: 'DEF Consumption Irregularity', condition: 'No DEF drop over > 10h engine run', threshold1: 0, unit1: '%', threshold2: 36000, unit2: 's', severity: 'Medium', pid: '01-52, 01-1F', useCase: 'Dosing system fault' },
     
     // Barometric Pressure Alerts
     { id: 25, type: 'Alert', enabled: false, category: 'Barometric Pressure', name: 'High-Altitude Operation', condition: '< 80 kPa', threshold1: 80, unit1: 'kPa', threshold2: 60, unit2: 's', severity: 'Medium', pid: '01-33', useCase: 'Altitude compensation' },
     { id: 26, type: 'Alert', enabled: false, category: 'Barometric Pressure', name: 'Sensor Mismatch', condition: 'Baro vs MAP deviation > 15 kPa', threshold1: 15, unit1: 'kPa', threshold2: 30, unit2: 's', severity: 'Low', pid: '01-33, 01-0B', useCase: 'Sensor fault detection' },
-    
-    // IAT Alerts
-    { id: 27, type: 'Alert', enabled: true, category: 'IAT', name: 'IAT Overheat Under Load', condition: '> 70°C + Load > 80%', threshold1: 70, unit1: '°C', threshold2: 60, unit2: 's', severity: 'Critical', pid: '01-0F, 01-04', useCase: 'Turbo/engine analytics' },
-    { id: 28, type: 'Alert', enabled: false, category: 'IAT', name: 'High IAT', condition: 'IAT - Ambient > 40°C', threshold1: 40, unit1: '°C', threshold2: 120, unit2: 's', severity: 'High', pid: '01-0F, 01-46', useCase: 'Intercooler inefficiency' },
     
     // Maintenance Rules
     { id: 101, type: 'Maintenance', enabled: true, category: 'Maintenance', name: 'Oil Change', condition: 'Every 10,000 km or 250 engine hours', threshold1: 10000, unit1: 'km', threshold2: null, unit2: '', severity: 'Medium', pid: '01-31', useCase: 'Lubrication maintenance' },
