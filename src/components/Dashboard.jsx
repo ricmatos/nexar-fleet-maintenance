@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Activity, Circle, Wrench, AlertTriangle, TrendingUp, TrendingDown, DollarSign, Gauge, Fuel, Clock, Settings, LayoutGrid, HelpCircle, X, Filter } from 'lucide-react';
+import { Activity, Circle, Wrench, AlertTriangle, TrendingUp, TrendingDown, DollarSign, Gauge, Fuel, Clock, HelpCircle, X, Filter } from 'lucide-react';
 import { 
   generateFleetMetrics, 
   generateFuelConsumptionData, 
@@ -11,22 +11,30 @@ import {
   generateAlertsOverTimeData
 } from '../data/dummyData';
 
-const Dashboard = () => {
-  const [showSettings, setShowSettings] = useState(false);
+const Dashboard = ({ isChatOpen = false }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [showHelp, setShowHelp] = useState(null); // Track which tooltip is open
-  const [selectedKPIs, setSelectedKPIs] = useState({
+  
+  // Show only 4 KPIs when chat is open, 6 when closed
+  const selectedKPIs = isChatOpen ? {
+    totalVehicles: false,
+    faults: false,
+    maintenance: true,
+    fleetHealth: true,
+    fuelCost: true,
+    fuelEfficiency: true
+  } : {
     totalVehicles: true,
-    idleActive: true,
     faults: true,
     maintenance: true,
     fleetHealth: true,
-    fuelCost: true
-  });
-  const [selectedPlots, setSelectedPlots] = useState({
+    fuelCost: true,
+    fuelEfficiency: true
+  };
+  const [selectedPlots] = useState({
     fuelEfficiencyTrend: true,
     fuelConsumption: true,
-    fuelIdleVsMoving: true,
+    idleAnalysis: true,
     costPerKm: true,
     alertsOverTime: true,
     fleetUtilization: true
@@ -378,14 +386,14 @@ const Dashboard = () => {
   );
 
   const MetricCard = ({ title, value, subtitle, icon: Icon, color, trend, trendValue, alert, helpId, helpTitle, helpDescription, helpCalculation }) => (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-all hover:shadow-md">
-      <div className="flex items-start justify-between mb-2">
+    <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-all hover:shadow-md h-[120px] flex flex-col justify-between">
+      <div className="flex items-start justify-between">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-2">
             <h3 className="text-[11px] text-gray-700 uppercase tracking-wider font-semibold">{title}</h3>
             {helpId && <InfoTooltip id={helpId} title={helpTitle} description={helpDescription} calculation={helpCalculation} />}
           </div>
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2 flex-wrap">
             <div className="text-2xl font-bold text-gray-900">{value}</div>
             {trendValue && (
               <div className={`flex items-center gap-1 text-xs font-medium ${trend === 'up' ? 'text-red-400' : 'text-emerald-400'}`}>
@@ -393,27 +401,25 @@ const Dashboard = () => {
                 {trendValue}
               </div>
             )}
-          </div>
-          <div className="flex items-center justify-between gap-2 mt-1">
-            {subtitle && <p className="text-xs text-gray-600 font-medium">{subtitle}</p>}
-            {alert && (
-              <div className={`text-[10px] px-2 py-0.5 rounded-md inline-flex items-center gap-1 font-semibold border ${
-                alert.type === 'warning' 
-                  ? 'bg-yellow-50 text-yellow-700 border-yellow-600'
-                  : alert.type === 'critical'
-                  ? 'bg-red-50 text-red-700 border-red-600'
-                  : 'bg-emerald-50 text-emerald-700 border-emerald-600'
-              }`}>
-                <AlertTriangle className="w-3 h-3" />
-                {alert.message}
-              </div>
-            )}
+            {subtitle && <span className="text-xs text-gray-600 font-medium">{subtitle}</span>}
           </div>
         </div>
-        <div className="p-1.5 rounded-lg bg-gray-800">
+        <div className="p-1.5 rounded-lg bg-gray-800 flex-shrink-0">
           <Icon className="w-3.5 h-3.5 text-white" />
         </div>
       </div>
+      {alert && (
+        <div className={`text-[10px] px-2 py-0.5 rounded-md inline-flex items-center gap-1 font-semibold border self-start ${
+          alert.type === 'warning' 
+            ? 'bg-yellow-50 text-yellow-700 border-yellow-600'
+            : alert.type === 'critical'
+            ? 'bg-red-50 text-red-700 border-red-600'
+            : 'bg-emerald-50 text-emerald-700 border-emerald-600'
+        }`}>
+          <AlertTriangle className="w-3 h-3" />
+          {alert.message}
+        </div>
+      )}
     </div>
   );
 
@@ -524,7 +530,6 @@ const Dashboard = () => {
       <MetricCard
         title="Fuel Cost/KM"
         value={`$${metrics.fuelCostPerKm.toFixed(2)}`}
-        subtitle={`Target: $${metrics.baselineCostPerKm.toFixed(2)}`}
         icon={DollarSign}
         color="bg-green-900/30 text-green-400"
         trend="up"
@@ -681,43 +686,75 @@ const Dashboard = () => {
       )
     },
     {
-      key: 'fuelIdleVsMoving',
-      label: 'Fuel: Moving vs Idle',
+      key: 'idleAnalysis',
+      label: 'Idle Analysis',
       component: (
         <div className="bg-white border border-purple-200 rounded-xl p-5 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold text-gray-900">Fuel: Moving vs Idle</h3>
+                <h3 className="text-sm font-semibold text-gray-900">Idle vs Active Analysis</h3>
                 <InfoTooltip 
-                  id="plot-fuel-idle-vs-moving"
-                  title="Fuel: Moving vs Idle"
-                  description="Pie chart showing fuel consumption breakdown between active driving (Speed > 0) and idling (Speed = 0). Helps identify excessive idle time and opportunities for driver behavior improvement. Target: Keep idle fuel below 20%."
-                  calculation="Moving: Σ fuel when Speed > 0 | Idle: Σ fuel when Speed = 0"
+                  id="plot-idle-analysis"
+                  title="Idle vs Active Analysis"
+                  description="Combined view of vehicle status and fuel consumption patterns. Left chart shows vehicle distribution, right chart shows fuel waste from idling."
+                  calculation="Vehicles: Count by status | Fuel: Consumption by speed state"
                 />
               </div>
-              <p className="text-xs text-gray-600 font-medium mt-1">Daily breakdown</p>
+              <p className="text-xs text-gray-600 font-medium mt-1">Status & fuel breakdown</p>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie
-                data={idleVsMovingData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ category, percentage }) => `${category}: ${percentage.toFixed(1)}%`}
-                outerRadius={70}
-                fill="#8884d8"
-                dataKey="fuel"
-              >
-                {idleVsMovingData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Vehicles Pie Chart */}
+            <div>
+              <p className="text-xs font-semibold text-gray-700 text-center mb-2">Vehicles: Idle vs Active</p>
+              <ResponsiveContainer width="100%" height={180}>
+                <PieChart>
+                  <Pie
+                    data={[
+                      { category: 'Active', count: metrics.vehiclesActive, percentage: (metrics.vehiclesActive / metrics.totalVehicles) * 100 },
+                      { category: 'Idle', count: metrics.vehiclesIdle, percentage: (metrics.vehiclesIdle / metrics.totalVehicles) * 100 }
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ category, count }) => `${category}: ${count}`}
+                    outerRadius={60}
+                    fill="#8884d8"
+                    dataKey="count"
+                  >
+                    <Cell fill="#10b981" />
+                    <Cell fill="#f59e0b" />
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Fuel Pie Chart */}
+            <div>
+              <p className="text-xs font-semibold text-gray-700 text-center mb-2">Fuel: Moving vs Idle</p>
+              <ResponsiveContainer width="100%" height={180}>
+                <PieChart>
+                  <Pie
+                    data={idleVsMovingData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ category, percentage }) => `${category}: ${percentage.toFixed(1)}%`}
+                    outerRadius={60}
+                    fill="#8884d8"
+                    dataKey="fuel"
+                  >
+                    {idleVsMovingData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
       )
     },
@@ -855,14 +892,14 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Settings Button */}
+      {/* Header with Filters Button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold text-gray-900">Fleet Overview</h2>
           <InfoTooltip 
             id="dashboard-help"
             title="Dashboard Overview"
-            description="This dashboard displays real-time OBD-II data from your fleet. Customize KPIs and plots using the Settings button. Click (?) icons on any metric or chart to learn more about calculations and thresholds. Alert badges appear when metrics exceed warning thresholds."
+            description="This dashboard displays real-time OBD-II data from your fleet. Click (?) icons on any metric or chart to learn more about calculations and thresholds. Alert badges appear when metrics exceed warning thresholds."
           />
         </div>
         <div className="flex items-center gap-3">
@@ -879,17 +916,6 @@ const Dashboard = () => {
             {(filters.vehicleType !== 'All' || filters.fuelType !== 'All' || filters.dateRange !== 'This Month') && (
               <span className="w-2 h-2 bg-[#5b4b9d] rounded-full"></span>
             )}
-          </button>
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl text-sm font-semibold transition-colors ${
-              showSettings
-                ? 'bg-purple-50 border-[#5b4b9d] text-[#5b4b9d]'
-                : 'bg-white border-gray-300 text-gray-700 hover:bg-purple-50 hover:border-purple-300'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            Customize Dashboard
           </button>
         </div>
       </div>
@@ -1008,93 +1034,6 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Settings Panel */}
-      {showSettings && (
-        <div className="bg-white border border-purple-200 rounded-xl p-6 space-y-6 shadow-lg">
-          {/* KPI Selection */}
-          <div>
-            <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Gauge className="w-4 h-4 text-[#5b4b9d]" />
-              Select KPIs to Display (Choose up to 6)
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {availableKPIs.map((kpi) => (
-                <label
-                  key={kpi.key}
-                  className="flex items-center gap-2 cursor-pointer group"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedKPIs[kpi.key]}
-                    onChange={(e) => {
-                      const selectedCount = Object.values(selectedKPIs).filter(v => v).length;
-                      if (e.target.checked && selectedCount >= 6) {
-                        return; // Don't allow more than 6
-                      }
-                      setSelectedKPIs({ ...selectedKPIs, [kpi.key]: e.target.checked });
-                    }}
-                    className="w-4 h-4 rounded bg-white border-gray-300 text-[#5b4b9d] focus:ring-[#5b4b9d] focus:ring-offset-0"
-                  />
-                  <span className="text-sm text-gray-800 font-medium group-hover:text-gray-900">
-                    {kpi.label}
-                  </span>
-                </label>
-              ))}
-            </div>
-            <p className="text-xs text-gray-600 font-medium mt-3">
-              {Object.values(selectedKPIs).filter(v => v).length} / 6 KPIs selected
-            </p>
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-gray-200"></div>
-
-          {/* Plot Selection */}
-          <div>
-            <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <LayoutGrid className="w-4 h-4 text-[#5b4b9d]" />
-              Select Plots to Display (Choose up to 6)
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {availablePlots.map((plot) => (
-                <label
-                  key={plot.key}
-                  className="flex items-center gap-2 cursor-pointer group"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedPlots[plot.key]}
-                    onChange={(e) => {
-                      const selectedCount = Object.values(selectedPlots).filter(v => v).length;
-                      if (e.target.checked && selectedCount >= 6) {
-                        return; // Don't allow more than 6
-                      }
-                      setSelectedPlots({ ...selectedPlots, [plot.key]: e.target.checked });
-                    }}
-                    className="w-4 h-4 rounded bg-white border-gray-300 text-[#5b4b9d] focus:ring-[#5b4b9d] focus:ring-offset-0"
-                  />
-                  <span className="text-sm text-gray-800 font-medium group-hover:text-gray-900">
-                    {plot.label}
-                  </span>
-                </label>
-              ))}
-            </div>
-            <p className="text-xs text-gray-600 font-medium mt-3">
-              {Object.values(selectedPlots).filter(v => v).length} / 6 plots selected
-            </p>
-          </div>
-
-          {/* Close Button */}
-          <div className="flex justify-end pt-2">
-            <button
-              onClick={() => setShowSettings(false)}
-              className="px-4 py-2.5 bg-[#5b4b9d] hover:bg-[#6d5ba7] text-white text-sm rounded-lg font-semibold transition-colors shadow-sm"
-            >
-              Apply Settings
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Filter Applied Banner */}
       {(filters.vehicleType !== 'All' || filters.fuelType !== 'All' || filters.dateRange !== 'This Month') && (
@@ -1111,11 +1050,11 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* KPI Cards - Single Row of 6 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {/* KPI Cards - Dynamic: 4 when chat open, 6 when closed */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${isChatOpen ? 'lg:grid-cols-4' : 'lg:grid-cols-6'}`}>
         {availableKPIs
           .filter(kpi => selectedKPIs[kpi.key])
-          .slice(0, 6)
+          .slice(0, isChatOpen ? 4 : 6)
           .map(kpi => (
             <div key={kpi.key}>{kpi.component}</div>
           ))}

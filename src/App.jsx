@@ -1,19 +1,29 @@
 import React, { useState } from 'react';
-import { GitBranch, PlaySquare, MapPin, BarChart3, Radio, Menu } from 'lucide-react';
+import { Menu, Wrench } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import Vehicles from './components/Vehicles';
 import Alerts from './components/Alerts';
+import ChatBot from './components/ChatBot';
+import { generateFleetMetrics, generateVehicleData } from './data/dummyData';
+
+// Import icon images
+import activityIcon from '../icons/activity.png';
+import incidentsIcon from '../icons/incidents.png';
+import geofencesIcon from '../icons/geofences.png';
+import reportsIcon from '../icons/reports.png';
+import nexarLogo from '../icons/nexar.png';
 
 function App() {
   const [activeSidebarTab, setActiveSidebarTab] = useState('Telematics');
   const [activeSubTab, setActiveSubTab] = useState('Dashboard');
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const sidebarItems = [
-    { id: 'Activity', name: 'Activity', icon: GitBranch },
-    { id: 'Incidents', name: 'Incidents', icon: PlaySquare },
-    { id: 'Geofences', name: 'Geofences', icon: MapPin },
-    { id: 'Reports', name: 'Reports', icon: BarChart3 },
-    { id: 'Telematics', name: 'Telematics', icon: Radio },
+    { id: 'Activity', name: 'Activity', icon: activityIcon, isImage: true },
+    { id: 'Incidents', name: 'Incidents', icon: incidentsIcon, isImage: true },
+    { id: 'Geofences', name: 'Geofences', icon: geofencesIcon, isImage: true },
+    { id: 'Reports', name: 'Reports', icon: reportsIcon, isImage: true },
+    { id: 'Telematics', name: 'Telematics', icon: Wrench, isImage: false },
   ];
 
   const telematicsSubTabs = ['Dashboard', 'Vehicles', 'Alerts'];
@@ -33,13 +43,13 @@ function App() {
 
     switch (activeSubTab) {
       case 'Dashboard':
-        return <Dashboard />;
+        return <Dashboard isChatOpen={isChatOpen} />;
       case 'Vehicles':
         return <Vehicles />;
       case 'Alerts':
         return <Alerts />;
       default:
-        return <Dashboard />;
+        return <Dashboard isChatOpen={isChatOpen} />;
     }
   };
 
@@ -49,17 +59,17 @@ function App() {
       <div className="w-[72px] bg-[#5b4b9d] flex flex-col items-center py-4 space-y-2">
         {/* Logo */}
         <div className="mb-4">
-          <div className="w-10 h-10 bg-[#5b4b9d] rounded flex items-center justify-center">
-            <svg width="20" height="24" viewBox="0 0 20 24" fill="none" className="text-white">
-              <path d="M10 0L0 12L7 12L7 24L20 12L13 12L10 0Z" fill="currentColor"/>
-            </svg>
-          </div>
+          <img 
+            src={nexarLogo} 
+            alt="Nexar Logo" 
+            className="w-6 h-6 object-contain"
+          />
         </div>
 
         {/* Navigation Items */}
         {sidebarItems.map((item) => {
-          const Icon = item.icon;
           const isActive = activeSidebarTab === item.id;
+          const Icon = item.icon;
           return (
             <button
               key={item.id}
@@ -68,7 +78,15 @@ function App() {
                 isActive ? 'bg-[#6d5ba7] text-white' : 'text-white/60 hover:text-white hover:bg-[#6d5ba7]/40'
               }`}
             >
-              <Icon className="w-6 h-6 mb-0.5" strokeWidth={1.5} />
+              {item.isImage ? (
+                <img 
+                  src={item.icon} 
+                  alt={item.name}
+                  className={`w-6 h-6 mb-0.5 object-contain ${!isActive ? 'opacity-60' : 'opacity-100'}`}
+                />
+              ) : (
+                <Icon className="w-6 h-6 mb-0.5" strokeWidth={1.5} />
+              )}
               <span className="text-[9px] font-medium">{item.name}</span>
               {isActive && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-white rounded-r"></div>
@@ -86,7 +104,12 @@ function App() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div 
+        className="flex-1 flex flex-col overflow-hidden transition-all duration-300"
+        style={{
+          marginRight: isChatOpen ? 'calc(33.333% + 0px)' : '0'
+        }}
+      >
         {/* Telematics Sub-Tabs */}
         {activeSidebarTab === 'Telematics' && (
           <div className="bg-white border-b border-gray-200 px-6 flex gap-1">
@@ -114,6 +137,16 @@ function App() {
           {renderContent()}
         </div>
       </div>
+
+      {/* AI Chatbot - Available across all pages */}
+      {activeSidebarTab === 'Telematics' && (
+        <ChatBot 
+          fleetData={generateFleetMetrics()}
+          vehicleData={generateVehicleData()}
+          currentPage={activeSubTab}
+          onOpenChange={setIsChatOpen}
+        />
+      )}
     </div>
   );
 }

@@ -4,6 +4,20 @@ A comprehensive fleet management portal based on OBD-II data, inspired by Samsar
 
 ## Features
 
+### 🤖 AI Chatbot Assistant (NEW!)
+- **Intelligent Fleet Analysis**: Ask questions about your fleet in natural language
+- **Multi-Provider Support**: Works with Claude (Anthropic), GPT-4 (OpenAI), or Gemini (Google)
+- **Real-Time Context**: Automatically analyzes current fleet data, vehicle metrics, and alerts
+- **Conversation Management**: Create, switch between, and save multiple chat sessions
+- **Smart Insights**: Get actionable recommendations on fuel efficiency, maintenance, costs, and vehicle health
+- **Example Queries**:
+  - "Which vehicles need immediate attention?"
+  - "What's my average fuel efficiency?"
+  - "Show me vehicles with active faults"
+  - "Which vehicle has the lowest health score?"
+
+📖 **[View Complete Chatbot Guide](CHATBOT_GUIDE.md)**
+
 ### 📊 Dashboard Tab
 - **Fleet KPIs**: Total vehicles, vehicles idle, maintenance due, fleet health
 - **Fuel Consumption Chart**: Line chart showing fuel consumption over time
@@ -91,6 +105,7 @@ npm run preview
 - **Tailwind CSS**: Utility-first styling
 - **Recharts**: Data visualization library
 - **Lucide React**: Beautiful icon set
+- **AI Integration**: Claude (Anthropic), GPT-4 (OpenAI), or Gemini (Google)
 
 ## Project Structure
 
@@ -100,9 +115,8 @@ obd_test/
 │   ├── components/
 │   │   ├── Dashboard.jsx    # Main dashboard with KPIs and charts
 │   │   ├── Vehicles.jsx     # Vehicle list view
-│   │   ├── Operations.jsx   # Real-time OBD parameters
 │   │   ├── Alerts.jsx       # Alert configuration
-│   │   └── Maintenance.jsx  # Maintenance schedule
+│   │   └── ChatBot.jsx      # AI chatbot assistant (NEW!)
 │   ├── data/
 │   │   └── dummyData.js     # Mock OBD-II data generator
 │   ├── App.jsx              # Main app component with routing
@@ -111,7 +125,9 @@ obd_test/
 ├── index.html
 ├── package.json
 ├── vite.config.js
-└── tailwind.config.js
+├── tailwind.config.js
+├── README.md
+└── CHATBOT_GUIDE.md         # Complete chatbot documentation
 ```
 
 ## Dummy Data
@@ -160,12 +176,18 @@ The dark theme uses Tailwind CSS custom colors defined in `tailwind.config.js`:
 
 ## Future Enhancements
 
+- ✅ **AI Chatbot Assistant** (Implemented!)
 - Real OBD-II device integration via Bluetooth/WiFi
 - Backend API for data persistence
 - User authentication and fleet management
 - Driver behavior analytics
 - Route optimization
 - Predictive maintenance ML models
+- Enhanced AI features:
+  - Voice input/output for chatbot
+  - Automated report generation via AI
+  - Predictive insights and recommendations
+  - Chart generation from natural language queries
 - Mobile app (React Native)
 - Real-time WebSocket updates
 - PDF report generation
