@@ -36,8 +36,8 @@ export const generateVehicleData = () => {
         status,
         fuelType,
         healthIndex: Math.floor(45 + Math.random() * 45),
-        fuelCostPerKm: parseFloat((0.15 + Math.random() * 0.15).toFixed(2)),
-        avgFuelEfficiency: parseFloat((6 + Math.random() * 8).toFixed(1)),
+        fuelCostPerMile: parseFloat((0.24 + Math.random() * 0.24).toFixed(2)), // converted from km
+        avgFuelEfficiency: parseFloat((14 + Math.random() * 19).toFixed(1)), // mpg (converted from km/L)
         fuelConsumptionDaily: parseFloat((status === 'In Service' ? 0 : 5 + Math.random() * 15).toFixed(1)),
         fuelMoving: parseFloat((status === 'In Service' ? 0 : 4 + Math.random() * 10).toFixed(1)),
         fuelIdle: parseFloat((status === 'Idle' ? 2 + Math.random() * 3 : Math.random() * 2).toFixed(1)),
@@ -54,8 +54,8 @@ export const generateVehicleData = () => {
         ambientTemp: 22,
         barometricPressure: 101.3,
         intakeAirTemp: Math.floor(22 + Math.random() * 15),
-        speedKmh: status === 'Active' ? Math.floor(Math.random() * 80) : 0,
-        odometerKm: Math.floor(10000 + Math.random() * 90000),
+        speedMph: status === 'Active' ? Math.floor(Math.random() * 50) : 0, // mph (converted from kmh)
+        odometerMiles: Math.floor(6200 + Math.random() * 55900), // miles (converted from km)
         activeDTCs: alertCount
       });
     }
@@ -74,8 +74,8 @@ export const generateVehicleData = () => {
       status: 'Active',
       fuelType: 'Diesel',
       healthIndex: 72,
-      fuelCostPerKm: 0.24,
-      avgFuelEfficiency: 8.5,
+      fuelCostPerMile: 0.39,
+      avgFuelEfficiency: 20.0,
       fuelConsumptionDaily: 15.2,
       fuelMoving: 11.8,
       fuelIdle: 3.4,
@@ -96,8 +96,8 @@ export const generateVehicleData = () => {
       ambientTemp: 22,
       barometricPressure: 101.3,
       intakeAirTemp: 31,
-      speedKmh: 38,
-      odometerKm: 45230,
+      speedMph: 24,
+      odometerMiles: 28100,
       activeDTCs: 2
     },
     {
@@ -108,8 +108,8 @@ export const generateVehicleData = () => {
       status: 'Idle',
       fuelType: 'Diesel',
       healthIndex: 58,
-      fuelCostPerKm: 0.18,
-      avgFuelEfficiency: 6.2,
+      fuelCostPerMile: 0.29,
+      avgFuelEfficiency: 14.6,
       fuelConsumptionDaily: 8.3,
       fuelMoving: 5.1,
       fuelIdle: 3.2,
@@ -129,8 +129,8 @@ export const generateVehicleData = () => {
       ambientTemp: 22,
       barometricPressure: 101.3,
       intakeAirTemp: 22,
-      speedKmh: 0,
-      odometerKm: 78450,
+      speedMph: 0,
+      odometerMiles: 48750,
       activeDTCs: 2
     },
     {
@@ -141,8 +141,8 @@ export const generateVehicleData = () => {
       status: 'Active',
       fuelType: 'Gas',
       healthIndex: 78,
-      fuelCostPerKm: 0.26,
-      avgFuelEfficiency: 9.8,
+      fuelCostPerMile: 0.42,
+      avgFuelEfficiency: 23.1,
       fuelConsumptionDaily: 12.5,
       fuelMoving: 10.2,
       fuelIdle: 2.3,
@@ -161,8 +161,8 @@ export const generateVehicleData = () => {
       ambientTemp: 22,
       barometricPressure: 101.3,
       intakeAirTemp: 29,
-      speedKmh: 0,
-      odometerKm: 32180,
+      speedMph: 0,
+      odometerMiles: 20000,
       activeDTCs: 1
     },
     {
@@ -173,8 +173,8 @@ export const generateVehicleData = () => {
       status: 'In Service',
       fuelType: 'Gas',
       healthIndex: 45,
-      fuelCostPerKm: 0.22,
-      avgFuelEfficiency: 7.9,
+      fuelCostPerMile: 0.35,
+      avgFuelEfficiency: 18.6,
       fuelConsumptionDaily: 0,
       fuelMoving: 0,
       fuelIdle: 0,
@@ -193,8 +193,8 @@ export const generateVehicleData = () => {
       ambientTemp: 22,
       barometricPressure: 101.3,
       intakeAirTemp: 22,
-      speedKmh: 0,
-      odometerKm: 56890,
+      speedMph: 0,
+      odometerMiles: 35350,
       activeDTCs: 1
     },
     {
@@ -205,8 +205,8 @@ export const generateVehicleData = () => {
       status: 'Active',
       fuelType: 'Hybrid',
       healthIndex: 89,
-      fuelCostPerKm: 0.15,
-      avgFuelEfficiency: 14.2,
+      fuelCostPerMile: 0.24,
+      avgFuelEfficiency: 33.4,
       fuelConsumptionDaily: 8.7,
       fuelMoving: 7.8,
       fuelIdle: 0.9,
@@ -223,8 +223,8 @@ export const generateVehicleData = () => {
       ambientTemp: 22,
       barometricPressure: 101.3,
       intakeAirTemp: 28,
-      speedKmh: 45,
-      odometerKm: 12350,
+      speedMph: 28,
+      odometerMiles: 7675,
       activeDTCs: 0
     },
     {
@@ -235,8 +235,8 @@ export const generateVehicleData = () => {
       status: 'Active',
       fuelType: 'Diesel',
       healthIndex: 65,
-      fuelCostPerKm: 0.19,
-      avgFuelEfficiency: 7.1,
+      fuelCostPerMile: 0.31,
+      avgFuelEfficiency: 16.7,
       fuelConsumptionDaily: 18.5,
       fuelMoving: 14.2,
       fuelIdle: 4.3,
@@ -256,8 +256,8 @@ export const generateVehicleData = () => {
       ambientTemp: 22,
       barometricPressure: 101.3,
       intakeAirTemp: 35,
-      speedKmh: 65,
-      odometerKm: 89250,
+      speedMph: 40,
+      odometerMiles: 55450,
       activeDTCs: 2
     },
     {
@@ -268,8 +268,8 @@ export const generateVehicleData = () => {
       status: 'Active',
       fuelType: 'Gas',
       healthIndex: 71,
-      fuelCostPerKm: 0.23,
-      avgFuelEfficiency: 8.8,
+      fuelCostPerMile: 0.37,
+      avgFuelEfficiency: 20.7,
       fuelConsumptionDaily: 14.1,
       fuelMoving: 11.5,
       fuelIdle: 2.6,
@@ -288,8 +288,8 @@ export const generateVehicleData = () => {
       ambientTemp: 22,
       barometricPressure: 101.3,
       intakeAirTemp: 30,
-      speedKmh: 52,
-      odometerKm: 54780,
+      speedMph: 52,
+      odometerMiles: 54780,
       activeDTCs: 1
     },
     {
@@ -300,8 +300,8 @@ export const generateVehicleData = () => {
       status: 'Active',
       fuelType: 'Gas',
       healthIndex: 82,
-      fuelCostPerKm: 0.21,
-      avgFuelEfficiency: 10.2,
+      fuelCostPerMile: 0.34,
+      avgFuelEfficiency: 24.0,
       fuelConsumptionDaily: 11.3,
       fuelMoving: 9.8,
       fuelIdle: 1.5,
@@ -320,8 +320,8 @@ export const generateVehicleData = () => {
       ambientTemp: 22,
       barometricPressure: 101.3,
       intakeAirTemp: 27,
-      speedKmh: 48,
-      odometerKm: 28900,
+      speedMph: 48,
+      odometerMiles: 28900,
       activeDTCs: 1
     },
     {
@@ -332,8 +332,8 @@ export const generateVehicleData = () => {
       status: 'Idle',
       fuelType: 'Diesel',
       healthIndex: 68,
-      fuelCostPerKm: 0.22,
-      avgFuelEfficiency: 8.2,
+      fuelCostPerMile: 0.35,
+      avgFuelEfficiency: 19.3,
       fuelConsumptionDaily: 2.1,
       fuelMoving: 0,
       fuelIdle: 2.1,
@@ -352,8 +352,8 @@ export const generateVehicleData = () => {
       ambientTemp: 22,
       barometricPressure: 101.3,
       intakeAirTemp: 24,
-      speedKmh: 0,
-      odometerKm: 67340,
+      speedMph: 0,
+      odometerMiles: 67340,
       activeDTCs: 1
     },
     {
@@ -364,8 +364,8 @@ export const generateVehicleData = () => {
       status: 'Active',
       fuelType: 'Diesel',
       healthIndex: 74,
-      fuelCostPerKm: 0.17,
-      avgFuelEfficiency: 7.5,
+      fuelCostPerMile: 0.27,
+      avgFuelEfficiency: 17.6,
       fuelConsumptionDaily: 16.8,
       fuelMoving: 13.9,
       fuelIdle: 2.9,
@@ -384,8 +384,8 @@ export const generateVehicleData = () => {
       ambientTemp: 22,
       barometricPressure: 101.3,
       intakeAirTemp: 32,
-      speedKmh: 58,
-      odometerKm: 92180,
+      speedMph: 58,
+      odometerMiles: 92180,
       activeDTCs: 1
     },
     {
@@ -396,8 +396,8 @@ export const generateVehicleData = () => {
       status: 'Active',
       fuelType: 'Gas',
       healthIndex: 85,
-      fuelCostPerKm: 0.20,
-      avgFuelEfficiency: 11.5,
+      fuelCostPerMile: 0.32,
+      avgFuelEfficiency: 27.0,
       fuelConsumptionDaily: 9.8,
       fuelMoving: 8.9,
       fuelIdle: 0.9,
@@ -414,8 +414,8 @@ export const generateVehicleData = () => {
       ambientTemp: 22,
       barometricPressure: 101.3,
       intakeAirTemp: 26,
-      speedKmh: 42,
-      odometerKm: 18650,
+      speedMph: 42,
+      odometerMiles: 18650,
       activeDTCs: 0
     }
   ];
@@ -431,7 +431,7 @@ export const generateOBDParameters = () => {
       rpm: 920,
       loadPercent: 32,
       throttlePercent: 14,
-      speedKmh: 38,
+      speedMph: 38,
       batteryV: 12.2,
       coolantC: 93,
       iatC: 31,
@@ -447,7 +447,7 @@ export const generateOBDParameters = () => {
       rpm: 0,
       loadPercent: 0,
       throttlePercent: 0,
-      speedKmh: 0,
+      speedMph: 0,
       batteryV: 11.8,
       coolantC: 40,
       iatC: 22,
@@ -463,7 +463,7 @@ export const generateOBDParameters = () => {
       rpm: 650,
       loadPercent: 8,
       throttlePercent: 3,
-      speedKmh: 0,
+      speedMph: 0,
       batteryV: 12.1,
       coolantC: 88,
       iatC: 29,
@@ -777,11 +777,11 @@ export const generateFuelConsumptionData = () => {
   ];
 };
 
-export const generateCostPerKMData = () => {
+export const generateCostPerMileData = () => {
   return [
-    { type: 'Van', cost: 0.24 },
-    { type: 'Truck', cost: 0.18 },
-    { type: 'Car', cost: 0.26 }
+    { type: 'Van', cost: 0.39 },
+    { type: 'Truck', cost: 0.29 },
+    { type: 'Car', cost: 0.42 }
   ];
 };
 
@@ -864,9 +864,9 @@ export const generateFleetMetrics = () => {
     
     // LEVEL 1 - Core Fleet KPIs
     fleetHealthIndex: 66,
-    fuelCostPerKm: 0.23,
-    avgFuelEfficiency: 8.5, // km/L
-    avgFuelEfficiencyL100km: 11.8, // L/100km
+    fuelCostPerMile: 0.37, // $/mile (converted from 0.23 $/km)
+    avgFuelEfficiency: 20.0, // mpg (converted from 8.5 km/L)
+    avgFuelEfficiencyL100km: 11.8, // L/100km (kept for reference)
     totalFuelConsumptionDaily: 45.2, // L/day
     fuelConsumptionMoving: 32.5, // L
     fuelConsumptionIdle: 12.7, // L
@@ -875,10 +875,10 @@ export const generateFleetMetrics = () => {
     fuelCostTrip: 22.6, // $ per trip average
     
     // Baseline comparisons
-    baselineFuelEfficiency: 9.0,
-    baselineCostPerKm: 0.20,
+    baselineFuelEfficiency: 21.2, // mpg (converted from 9.0 km/L)
+    baselineCostPerMile: 0.32, // $/mile (converted from 0.20 $/km)
     targetIdlePercentage: 15,
-    fleetAverageFuelEfficiency: 8.5
+    fleetAverageFuelEfficiency: 20.0 // mpg
   };
 };
 

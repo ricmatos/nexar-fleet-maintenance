@@ -4,7 +4,7 @@ import { Activity, Circle, Wrench, AlertTriangle, TrendingUp, TrendingDown, Doll
 import { 
   generateFleetMetrics, 
   generateFuelConsumptionData, 
-  generateCostPerKMData, 
+  generateCostPerMileData, 
   generateFuelIdleVsMovingData,
   generateFuelEfficiencyTrendData,
   generateDailyFuelCostData,
@@ -35,7 +35,7 @@ const Dashboard = ({ isChatOpen = false }) => {
     fuelEfficiencyTrend: true,
     fuelConsumption: true,
     idleAnalysis: true,
-    costPerKm: true,
+    costPerMile: true,
     alertsOverTime: true,
     fleetUtilization: true
   });
@@ -58,23 +58,23 @@ const Dashboard = ({ isChatOpen = false }) => {
       baseMetrics.vehiclesActive = 1;
       baseMetrics.vehiclesIdle = filters.vehicleType === 'Truck' ? 1 : 0;
       baseMetrics.idlePercentage = filters.vehicleType === 'Truck' ? 100 : 0;
-      baseMetrics.fuelCostPerKm = filters.vehicleType === 'Van' ? 0.24 : filters.vehicleType === 'Truck' ? 0.18 : 0.26;
+      baseMetrics.fuelCostPerMile = filters.vehicleType === 'Van' ? 0.39 : filters.vehicleType === 'Truck' ? 0.29 : 0.42;
     }
     
     // Adjust metrics based on fuel type filter
     if (filters.fuelType !== 'All') {
       if (filters.fuelType === 'Electric') {
-        baseMetrics.fuelCostPerKm = 0.08;
+        baseMetrics.fuelCostPerMile = 0.13;
         baseMetrics.avgFuelEfficiency = 0; // N/A for electric
         baseMetrics.fuelConsumptionIdle = 0;
         baseMetrics.idleFuelPercentage = 0;
       } else if (filters.fuelType === 'Hybrid') {
-        baseMetrics.fuelCostPerKm = 0.15;
-        baseMetrics.avgFuelEfficiency = 12.5;
+        baseMetrics.fuelCostPerMile = 0.24;
+        baseMetrics.avgFuelEfficiency = 29.4;
         baseMetrics.idleFuelPercentage = 15.2;
       } else if (filters.fuelType === 'Diesel') {
-        baseMetrics.avgFuelEfficiency = 9.2;
-        baseMetrics.fuelCostPerKm = 0.19;
+        baseMetrics.avgFuelEfficiency = 21.6;
+        baseMetrics.fuelCostPerMile = 0.31;
       }
     }
     
@@ -143,7 +143,7 @@ const Dashboard = ({ isChatOpen = false }) => {
   };
 
   const getFilteredCostData = () => {
-    const baseData = generateCostPerKMData();
+    const baseData = generateCostPerMileData();
     
     // Filter by vehicle type
     if (filters.vehicleType !== 'All') {
@@ -183,49 +183,49 @@ const Dashboard = ({ isChatOpen = false }) => {
   const getFilteredEfficiencyTrend = () => {
     let data = [];
     
-    // Generate data based on date range
+    // Generate data based on date range (mpg values)
     if (filters.dateRange === 'This Week' || filters.dateRange === 'Last Week') {
       data = [
-        { date: 'Mon', efficiency: 8.3, baseline: 9.0 },
-        { date: 'Tue', efficiency: 8.5, baseline: 9.0 },
-        { date: 'Wed', efficiency: 8.2, baseline: 9.0 },
-        { date: 'Thu', efficiency: 8.6, baseline: 9.0 },
-        { date: 'Fri', efficiency: 8.4, baseline: 9.0 },
-        { date: 'Sat', efficiency: 8.7, baseline: 9.0 },
-        { date: 'Sun', efficiency: 8.5, baseline: 9.0 }
+        { date: 'Mon', efficiency: 19.5, baseline: 21.2 },
+        { date: 'Tue', efficiency: 20.0, baseline: 21.2 },
+        { date: 'Wed', efficiency: 19.3, baseline: 21.2 },
+        { date: 'Thu', efficiency: 20.2, baseline: 21.2 },
+        { date: 'Fri', efficiency: 19.8, baseline: 21.2 },
+        { date: 'Sat', efficiency: 20.5, baseline: 21.2 },
+        { date: 'Sun', efficiency: 20.0, baseline: 21.2 }
       ];
     } else if (filters.dateRange === 'Last 3 Months') {
       data = [
-        { date: 'Jul 23', efficiency: 8.0, baseline: 9.0 },
-        { date: 'Aug 6', efficiency: 8.3, baseline: 9.0 },
-        { date: 'Aug 20', efficiency: 8.6, baseline: 9.0 },
-        { date: 'Sep 3', efficiency: 8.2, baseline: 9.0 },
-        { date: 'Sep 17', efficiency: 8.5, baseline: 9.0 },
-        { date: 'Oct 1', efficiency: 8.4, baseline: 9.0 },
-        { date: 'Oct 15', efficiency: 8.6, baseline: 9.0 },
-        { date: 'Oct 21', efficiency: 8.5, baseline: 9.0 }
+        { date: 'Jul 23', efficiency: 18.8, baseline: 21.2 },
+        { date: 'Aug 6', efficiency: 19.5, baseline: 21.2 },
+        { date: 'Aug 20', efficiency: 20.2, baseline: 21.2 },
+        { date: 'Sep 3', efficiency: 19.3, baseline: 21.2 },
+        { date: 'Sep 17', efficiency: 20.0, baseline: 21.2 },
+        { date: 'Oct 1', efficiency: 19.8, baseline: 21.2 },
+        { date: 'Oct 15', efficiency: 20.2, baseline: 21.2 },
+        { date: 'Oct 21', efficiency: 20.0, baseline: 21.2 }
       ];
     } else if (filters.dateRange === 'This Year') {
       data = [
-        { date: 'Jan', efficiency: 8.0, baseline: 9.0 },
-        { date: 'Feb', efficiency: 8.2, baseline: 9.0 },
-        { date: 'Mar', efficiency: 8.4, baseline: 9.0 },
-        { date: 'Apr', efficiency: 8.3, baseline: 9.0 },
-        { date: 'May', efficiency: 8.5, baseline: 9.0 },
-        { date: 'Jun', efficiency: 8.6, baseline: 9.0 },
-        { date: 'Jul', efficiency: 8.4, baseline: 9.0 },
-        { date: 'Aug', efficiency: 8.7, baseline: 9.0 },
-        { date: 'Sep', efficiency: 8.5, baseline: 9.0 },
-        { date: 'Oct', efficiency: 8.6, baseline: 9.0 }
+        { date: 'Jan', efficiency: 18.8, baseline: 21.2 },
+        { date: 'Feb', efficiency: 19.3, baseline: 21.2 },
+        { date: 'Mar', efficiency: 19.8, baseline: 21.2 },
+        { date: 'Apr', efficiency: 19.5, baseline: 21.2 },
+        { date: 'May', efficiency: 20.0, baseline: 21.2 },
+        { date: 'Jun', efficiency: 20.2, baseline: 21.2 },
+        { date: 'Jul', efficiency: 19.8, baseline: 21.2 },
+        { date: 'Aug', efficiency: 20.5, baseline: 21.2 },
+        { date: 'Sep', efficiency: 20.0, baseline: 21.2 },
+        { date: 'Oct', efficiency: 20.2, baseline: 21.2 }
       ];
     } else {
       // This Month / Last Month (default)
       data = [
-        { date: 'Sep 21', efficiency: 8.2, baseline: 9.0 },
-        { date: 'Sep 28', efficiency: 8.7, baseline: 9.0 },
-        { date: 'Oct 5', efficiency: 8.5, baseline: 9.0 },
-        { date: 'Oct 12', efficiency: 8.3, baseline: 9.0 },
-        { date: 'Oct 19', efficiency: 8.6, baseline: 9.0 }
+        { date: 'Sep 21', efficiency: 19.3, baseline: 21.2 },
+        { date: 'Sep 28', efficiency: 20.5, baseline: 21.2 },
+        { date: 'Oct 5', efficiency: 20.0, baseline: 21.2 },
+        { date: 'Oct 12', efficiency: 19.5, baseline: 21.2 },
+        { date: 'Oct 19', efficiency: 20.2, baseline: 21.2 }
       ];
     }
     
@@ -522,32 +522,32 @@ const Dashboard = ({ isChatOpen = false }) => {
         }}
         helpId="kpi-fleet-health"
         helpTitle="Fleet Health Index"
-        helpDescription="A composite score (0-100) that combines fuel efficiency, idle time, cost per km, and reliability metrics to provide a single indicator of overall fleet performance. Score < 70 indicates inefficient operation."
-        helpCalculation="FuelEff × 35% + Idle × 25% + Cost/km × 25% + Reliability × 15%"
+        helpDescription="A composite score (0-100) that combines fuel efficiency, idle time, cost per mile, and reliability metrics to provide a single indicator of overall fleet performance. Score < 70 indicates inefficient operation."
+        helpCalculation="FuelEff × 35% + Idle × 25% + Cost/mile × 25% + Reliability × 15%"
       />
     )},
-    { key: 'fuelCost', label: 'Fuel Cost/KM', component: (
+    { key: 'fuelCost', label: 'Fuel Cost/Mile', component: (
       <MetricCard
-        title="Fuel Cost/KM"
-        value={`$${metrics.fuelCostPerKm.toFixed(2)}`}
+        title="Fuel Cost/Mile"
+        value={`$${metrics.fuelCostPerMile.toFixed(2)}`}
         icon={DollarSign}
         color="bg-green-900/30 text-green-400"
         trend="up"
-        trendValue={`+${((metrics.fuelCostPerKm - metrics.baselineCostPerKm) / metrics.baselineCostPerKm * 100).toFixed(1)}%`}
-        alert={metrics.fuelCostPerKm > metrics.baselineCostPerKm ? {
+        trendValue={`+${((metrics.fuelCostPerMile - metrics.baselineCostPerMile) / metrics.baselineCostPerMile * 100).toFixed(1)}%`}
+        alert={metrics.fuelCostPerMile > metrics.baselineCostPerMile ? {
           type: 'warning',
           message: 'Above target'
         } : null}
         helpId="kpi-fuel-cost"
-        helpTitle="Fuel Cost per KM"
-        helpDescription="Enables cost analytics and profitability tracking by calculating total fuel expenditure per kilometer driven. Integrates fuel consumption data with dynamic pricing. Compare across routes, drivers, and vehicle classes."
+        helpTitle="Fuel Cost per Mile"
+        helpDescription="Enables cost analytics and profitability tracking by calculating total fuel expenditure per mile driven. Integrates fuel consumption data with dynamic pricing. Compare across routes, drivers, and vehicle classes."
         helpCalculation="(Fuel Used × Fuel Price) / Distance Traveled"
       />
     )},
     { key: 'fuelEfficiency', label: 'Fuel Efficiency', component: (
       <MetricCard
         title="Fuel Efficiency"
-        value={filters.fuelType === 'Electric' ? 'N/A' : `${metrics.avgFuelEfficiency} km/L`}
+        value={filters.fuelType === 'Electric' ? 'N/A' : `${metrics.avgFuelEfficiency} mpg`}
         subtitle={filters.fuelType === 'Electric' ? 'Electric vehicle' : `${metrics.avgFuelEfficiencyL100km} L/100km`}
         icon={Fuel}
         color="bg-blue-900/30 text-blue-400"
@@ -558,7 +558,7 @@ const Dashboard = ({ isChatOpen = false }) => {
         helpId="kpi-fuel-efficiency"
         helpTitle="Average Fuel Efficiency"
         helpDescription="Measures average fuel economy across the fleet using OBD-II fuel rate (PID 01-5E) and distance data. Normalized by vehicle class, load, and route type for fair comparisons. Alert triggers when < 15% below baseline."
-        helpCalculation="Distance Traveled / Fuel Used (km/L) or inverse (L/100km)"
+        helpCalculation="Distance Traveled / Fuel Used (mpg)"
       />
     )},
     { key: 'idleFuel', label: 'Idle Fuel Loss', component: (
@@ -600,7 +600,7 @@ const Dashboard = ({ isChatOpen = false }) => {
                   calculation="Actual: Distance / Fuel | Target: OEM baseline"
                 />
               </div>
-              <p className="text-xs text-gray-600 font-medium mt-1">km/L vs Baseline</p>
+              <p className="text-xs text-gray-600 font-medium mt-1">mpg vs Baseline</p>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={200}>
@@ -614,7 +614,7 @@ const Dashboard = ({ isChatOpen = false }) => {
                   <YAxis 
                     stroke="#374151" 
                     style={{ fontSize: '11px', fontWeight: '600' }}
-                domain={[7, 10]}
+                domain={[16, 24]}
               />
               <Tooltip content={<CustomTooltip />} />
                   <Legend wrapperStyle={{ fontSize: '11px', fontWeight: '600', color: '#374151' }} />
@@ -759,17 +759,17 @@ const Dashboard = ({ isChatOpen = false }) => {
       )
     },
     {
-      key: 'costPerKm',
-      label: 'Cost per KM',
+      key: 'costPerMile',
+      label: 'Cost per Mile',
       component: (
         <div className="bg-white border border-purple-200 rounded-xl p-5 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold text-gray-900">Cost per KM</h3>
+                <h3 className="text-sm font-semibold text-gray-900">Cost per Mile</h3>
                 <InfoTooltip 
-                  id="plot-cost-per-km"
-                  title="Cost per KM by Vehicle Type"
+                  id="plot-cost-per-mile"
+                  title="Cost per Mile by Vehicle Type"
                   description="Compares fuel cost efficiency across different vehicle classes (Van, Truck, Car). Helps optimize fleet composition and identify which vehicle types are most cost-effective for specific routes or use cases."
                   calculation="(Total Fuel Cost / Distance) per vehicle type"
                 />
@@ -792,7 +792,7 @@ const Dashboard = ({ isChatOpen = false }) => {
                 style={{ fontSize: '11px' }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="cost" fill="#3b82f6" radius={[0, 4, 4, 0]} name="USD/km" />
+              <Bar dataKey="cost" fill="#3b82f6" radius={[0, 4, 4, 0]} name="USD/mile" />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -61,8 +61,8 @@ const ChatBot = ({ fleetData, vehicleData, currentPage, onOpenChange }) => {
     const idleVehicles = vehicleData.filter(v => v.status === 'Idle');
     const criticalAlerts = vehicleData.filter(v => v.alerts.some(a => a.severity === 'Critical'));
     const lowHealthVehicles = vehicleData.filter(v => v.healthIndex < 70).sort((a, b) => a.healthIndex - b.healthIndex);
-    const highCostVehicles = vehicleData.sort((a, b) => b.fuelCostPerKm - a.fuelCostPerKm);
-    const lowEfficiencyVehicles = vehicleData.filter(v => v.avgFuelEfficiency < 8).sort((a, b) => a.avgFuelEfficiency - b.avgFuelEfficiency);
+    const highCostVehicles = vehicleData.sort((a, b) => b.fuelCostPerMile - a.fuelCostPerMile);
+    const lowEfficiencyVehicles = vehicleData.filter(v => v.avgFuelEfficiency < 19).sort((a, b) => a.avgFuelEfficiency - b.avgFuelEfficiency);
     const maintenanceDue = vehicleData.filter(v => v.alerts.some(a => a.type.includes('Due') || a.type.includes('Change')));
     
     // Question patterns
@@ -118,10 +118,10 @@ const ChatBot = ({ fleetData, vehicleData, currentPage, onOpenChange }) => {
       let response = `💰 **Highest Operating Cost Vehicles:**\n\n`;
       
       highCostVehicles.slice(0, 5).forEach((v, idx) => {
-        response += `${idx + 1}. **${v.id}** - $${v.fuelCostPerKm.toFixed(2)}/km\n`;
+        response += `${idx + 1}. **${v.id}** - $${v.fuelCostPerMile.toFixed(2)}/mile\n`;
         response += `   - Type: ${v.type} (${v.fuelType})\n`;
         response += `   - Daily Cost: $${v.totalFuelCostDaily.toFixed(2)}\n`;
-        response += `   - Efficiency: ${v.avgFuelEfficiency} km/L\n`;
+        response += `   - Efficiency: ${v.avgFuelEfficiency} mpg\n`;
         if (v.healthIndex < 70) {
           response += `   ⚠️ Low health (${v.healthIndex}/100) may be affecting costs\n`;
         }
@@ -135,7 +135,7 @@ const ChatBot = ({ fleetData, vehicleData, currentPage, onOpenChange }) => {
       let response = `⛽ **Fuel Cost Analysis:**\n\n`;
       response += `**Fleet Totals:**\n`;
       response += `• Daily Fuel Cost: $${fleetData.totalFuelCostDaily.toFixed(2)}\n`;
-      response += `• Average Cost/km: $${fleetData.fuelCostPerKm.toFixed(2)}\n`;
+      response += `• Average Cost/mile: $${fleetData.fuelCostPerMile.toFixed(2)}\n`;
       response += `• Daily Consumption: ${fleetData.totalFuelConsumptionDaily?.toFixed(1)}L\n\n`;
       
       response += `**Cost Breakdown by Type:**\n`;
@@ -161,26 +161,26 @@ const ChatBot = ({ fleetData, vehicleData, currentPage, onOpenChange }) => {
     
     if (lowerQuery.includes('efficiency') || lowerQuery.includes('efficient')) {
       let response = `📈 **Fuel Efficiency Analysis:**\n\n`;
-      response += `**Fleet Average:** ${fleetData.avgFuelEfficiency} km/L\n`;
-      response += `**Baseline Target:** ${fleetData.baselineFuelEfficiency} km/L\n\n`;
+      response += `**Fleet Average:** ${fleetData.avgFuelEfficiency} mpg\n`;
+      response += `**Baseline Target:** ${fleetData.baselineFuelEfficiency} mpg\n\n`;
       
       const efficient = vehicleData.filter(v => v.avgFuelEfficiency >= fleetData.baselineFuelEfficiency);
       const inefficient = vehicleData.filter(v => v.avgFuelEfficiency < fleetData.baselineFuelEfficiency);
       
       response += `**Above Target (${efficient.length} vehicles):**\n`;
       efficient.slice(0, 3).forEach(v => {
-        response += `• ${v.id}: ${v.avgFuelEfficiency} km/L ✅\n`;
+        response += `• ${v.id}: ${v.avgFuelEfficiency} mpg ✅\n`;
       });
       
       response += `\n**Below Target (${inefficient.length} vehicles):**\n`;
       inefficient.slice(0, 3).forEach(v => {
-        response += `• ${v.id}: ${v.avgFuelEfficiency} km/L ⚠️\n`;
+        response += `• ${v.id}: ${v.avgFuelEfficiency} mpg ⚠️\n`;
       });
       
       if (lowEfficiencyVehicles.length > 0) {
         response += `\n**Action Needed:**\n`;
         lowEfficiencyVehicles.slice(0, 2).forEach(v => {
-          response += `• ${v.id} (${v.avgFuelEfficiency} km/L) - Check for maintenance issues\n`;
+          response += `• ${v.id} (${v.avgFuelEfficiency} mpg) - Check for maintenance issues\n`;
         });
       }
       
@@ -273,8 +273,8 @@ const ChatBot = ({ fleetData, vehicleData, currentPage, onOpenChange }) => {
         response += `| Type | ${v1.type} | ${v2.type} |\n`;
         response += `| Health | ${v1.healthIndex}/100 | ${v2.healthIndex}/100 |\n`;
         response += `| Status | ${v1.status} | ${v2.status} |\n`;
-        response += `| Efficiency | ${v1.avgFuelEfficiency} km/L | ${v2.avgFuelEfficiency} km/L |\n`;
-        response += `| Cost/km | $${v1.fuelCostPerKm} | $${v2.fuelCostPerKm} |\n`;
+        response += `| Efficiency | ${v1.avgFuelEfficiency} mpg | ${v2.avgFuelEfficiency} mpg |\n`;
+        response += `| Cost/mile | $${v1.fuelCostPerMile} | $${v2.fuelCostPerMile} |\n`;
         response += `| Daily Cost | $${v1.totalFuelCostDaily.toFixed(2)} | $${v2.totalFuelCostDaily.toFixed(2)} |\n`;
         response += `| Alerts | ${v1.alerts.length} | ${v2.alerts.length} |\n`;
         

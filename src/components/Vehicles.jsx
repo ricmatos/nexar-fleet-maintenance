@@ -80,7 +80,7 @@ const Vehicles = () => {
 
   // Download CSV function
   const downloadCSV = () => {
-    const headers = ['Vehicle ID', 'VIN', 'Type', 'Fuel Type', 'Camera SN', 'Status', 'Health', 'Cost/km', 'Efficiency', 'Fuel Daily', 'Moving/Idle', 'Cost Daily', 'Alerts'];
+    const headers = ['Vehicle ID', 'VIN', 'Type', 'Fuel Type', 'Camera SN', 'Status', 'Health', 'Cost/mile', 'Efficiency (mpg)', 'Fuel Daily', 'Moving/Idle', 'Cost Daily', 'Alerts'];
     const csvData = allVehicles.map(v => [
       v.id,
       v.vin,
@@ -89,7 +89,7 @@ const Vehicles = () => {
       v.cameraSN,
       v.status,
       v.healthIndex,
-      v.fuelCostPerKm,
+      v.fuelCostPerMile,
       v.avgFuelEfficiency,
       v.fuelConsumptionDaily,
       `${v.fuelMoving}/${v.fuelIdle}`,
@@ -161,9 +161,9 @@ const Vehicles = () => {
         aValue = a.healthIndex;
         bValue = b.healthIndex;
         break;
-      case 'costKm':
-        aValue = a.fuelCostPerKm;
-        bValue = b.fuelCostPerKm;
+      case 'costMile':
+        aValue = a.fuelCostPerMile;
+        bValue = b.fuelCostPerMile;
         break;
       case 'efficiency':
         aValue = a.avgFuelEfficiency;
@@ -296,8 +296,8 @@ const Vehicles = () => {
         defLevel: vehicle.defLevel ? Math.max(0, vehicle.defLevel - (i * 0.1)) : null,
         
         // Vehicle motion & diagnostics
-        speed: vehicle.status === 'Active' ? vehicle.speedKmh + (Math.random() - 0.5) * 10 : 0,
-        odometer: vehicle.odometerKm + (i * 2.5), // Gradual increase
+        speed: vehicle.status === 'Active' ? vehicle.speedMph + (Math.random() - 0.5) * 6 : 0,
+        odometer: vehicle.odometerMiles + (i * 1.5), // Gradual increase
         dtcCount: vehicle.activeDTCs + Math.floor(Math.random() * 2) // Occasional DTC changes
       });
     }
@@ -579,9 +579,9 @@ const Vehicles = () => {
                 </th>
                 <th className="px-4 py-3 font-bold">
                   <div className="flex items-center gap-1">
-                    <button onClick={() => handleSort('costKm')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
-                      Cost/km
-                      {sortColumn === 'costKm' ? (
+                    <button onClick={() => handleSort('costMile')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
+                      Cost/mile
+                      {sortColumn === 'costMile' ? (
                         sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
                       ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
                     </button>
@@ -589,19 +589,19 @@ const Vehicles = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setShowMetricHelp(showMetricHelp === 'costKm' ? null : 'costKm');
+                          setShowMetricHelp(showMetricHelp === 'costMile' ? null : 'costMile');
                         }}
                         className="text-gray-400 hover:text-[#5b4b9d] transition-colors"
                       >
                         <HelpCircle className="w-4 h-4" />
                       </button>
-                      {showMetricHelp === 'costKm' && (
+                      {showMetricHelp === 'costMile' && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setShowMetricHelp(null)} />
                           <div className="absolute z-50 left-0 top-6 w-80 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
-                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Cost per Kilometer</h4>
+                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Cost per Mile</h4>
                             <p className="text-xs text-gray-900 leading-relaxed mb-3">
-                              Operational fuel cost efficiency metric showing how much it costs to operate this vehicle per kilometer traveled. Critical for fleet budget optimization and route planning.
+                              Operational fuel cost efficiency metric showing how much it costs to operate this vehicle per mile traveled. Critical for fleet budget optimization and route planning.
                             </p>
                             <p className="text-xs text-gray-600 font-semibold mb-1">CALCULATION:</p>
                             <p className="text-xs text-indigo-700 font-mono">
@@ -637,11 +637,11 @@ const Vehicles = () => {
                           <div className="absolute z-50 left-0 top-6 w-80 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
                             <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Fuel Efficiency</h4>
                             <p className="text-xs text-gray-900 leading-relaxed mb-3">
-                              Average distance traveled per liter of fuel consumed. Key metric for identifying fuel-inefficient vehicles, poor driving habits, or mechanical issues affecting consumption.
+                              Average miles per gallon (mpg). Key metric for identifying fuel-inefficient vehicles, poor driving habits, or mechanical issues affecting consumption.
                             </p>
                             <p className="text-xs text-gray-600 font-semibold mb-1">CALCULATION:</p>
                             <p className="text-xs text-indigo-700 font-mono">
-                              Distance (km) ÷ Fuel Used (L) | From: Speed (PID 01-0D), MAF (PID 01-10), Fuel Rate (PID 01-5E)
+                              Distance (miles) ÷ Fuel Used (gallons) | From: Speed (PID 01-0D), MAF (PID 01-10), Fuel Rate (PID 01-5E)
                             </p>
                           </div>
                         </>
@@ -807,8 +807,8 @@ const Vehicles = () => {
                         {vehicle.healthIndex}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-gray-900 font-medium">${vehicle.fuelCostPerKm.toFixed(2)}</td>
-                    <td className="px-4 py-4 text-gray-900 font-medium">{vehicle.avgFuelEfficiency} km/L</td>
+                    <td className="px-4 py-4 text-gray-900 font-medium">${vehicle.fuelCostPerMile.toFixed(2)}</td>
+                    <td className="px-4 py-4 text-gray-900 font-medium">{vehicle.avgFuelEfficiency} mpg</td>
                     <td className="px-4 py-4 text-gray-900 font-medium">{vehicle.fuelConsumptionDaily.toFixed(1)}L</td>
                     <td className="px-4 py-4 text-gray-900 font-medium">
                       {vehicle.fuelMoving.toFixed(1)}L / {vehicle.fuelIdle.toFixed(1)}L
@@ -901,8 +901,8 @@ const Vehicles = () => {
                                   <YAxis yAxisId="right" orientation="right" stroke="#10b981" style={{ fontSize: '10px', fontWeight: '600' }} />
                                   <Tooltip content={<CustomTooltip />} />
                                   <Legend wrapperStyle={{ fontSize: '10px', fontWeight: '600', color: '#374151' }} iconType="line" />
-                                  <Line yAxisId="left" type="monotone" dataKey="speed" stroke="#3b82f6" strokeWidth={2} name="Speed (km/h)" dot={false} />
-                                  <Line yAxisId="right" type="monotone" dataKey="odometer" stroke="#10b981" strokeWidth={2} name="Odometer (km)" dot={false} />
+                                  <Line yAxisId="left" type="monotone" dataKey="speed" stroke="#3b82f6" strokeWidth={2} name="Speed (mph)" dot={false} />
+                                  <Line yAxisId="right" type="monotone" dataKey="odometer" stroke="#10b981" strokeWidth={2} name="Odometer (miles)" dot={false} />
                                 </LineChart>
                               </ResponsiveContainer>
                             </div>
@@ -1088,11 +1088,11 @@ const Vehicles = () => {
                               </div>
                               <div className="text-center">
                                 <div className="text-xs text-gray-600 font-semibold">Speed</div>
-                                <div className="text-sm font-bold text-gray-900">{vehicle.speedKmh} km/h</div>
+                                <div className="text-sm font-bold text-gray-900">{vehicle.speedMph} mph</div>
                               </div>
                               <div className="text-center">
                                 <div className="text-xs text-gray-600 font-semibold">Odometer</div>
-                                <div className="text-sm font-bold text-gray-900">{vehicle.odometerKm.toLocaleString()} km</div>
+                                <div className="text-sm font-bold text-gray-900">{vehicle.odometerMiles.toLocaleString()} mi</div>
                               </div>
                               <div className="text-center">
                                 <div className="text-xs text-gray-600 font-semibold">Alerts</div>
