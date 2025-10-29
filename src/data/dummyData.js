@@ -1,5 +1,41 @@
 // Dummy OBD-II Data Generator for Fleet Management Dashboard
 
+// Unified Health Index Calculation (0-100)
+// Used for both individual vehicles and fleet average
+const calculateHealthIndex = (vehicle) => {
+  // 1. DTC Score (30%) - penalize active diagnostic trouble codes
+  const dtcScore = Math.max(0, 100 - (vehicle.activeDTCs * 33));
+  
+  // 2. Maintenance Score (20%) - check for maintenance alerts
+  const hasMaintenanceAlert = vehicle.alerts.some(alert => 
+    alert.type.includes('Due') || 
+    alert.type.includes('Overdue') || 
+    alert.type.includes('Maintenance') ||
+    alert.type.includes('Inspection')
+  );
+  const maintenanceScore = hasMaintenanceAlert ? 0 : 100;
+  
+  // 3. MPG Score (30%) - fuel efficiency (10-35 mpg range)
+  // Higher MPG = better score
+  const mpgScore = Math.min(100, Math.max(0, ((vehicle.avgFuelEfficiency - 10) / 25) * 100));
+  
+  // 4. Idle Time Score (20%) - lower idle percentage is better
+  const idlePercent = vehicle.fuelConsumptionDaily > 0 
+    ? (vehicle.fuelIdle / vehicle.fuelConsumptionDaily) * 100 
+    : 0;
+  const idleScore = Math.max(0, 100 - (idlePercent * 2)); // 50% idle = 0 score
+  
+  // Calculate weighted health index
+  const healthIndex = Math.round(
+    (dtcScore * 0.30) +
+    (maintenanceScore * 0.20) +
+    (mpgScore * 0.30) +
+    (idleScore * 0.20)
+  );
+  
+  return Math.min(100, Math.max(0, healthIndex));
+};
+
 export const generateVehicleData = () => {
   // Generate 100 vehicles with varied data
   const generateDummyVehicles = () => {
@@ -28,14 +64,13 @@ export const generateVehicleData = () => {
       
       const prefix = type === 'Van' ? 'VAN' : type === 'Truck' ? 'TRK' : 'CAR';
       
-      vehicles.push({
+      const vehicleData = {
         id: `${prefix}-${String(i).padStart(3, '0')}`,
         vin: `1FTFW1EV${Math.floor(Math.random() * 10)}DFC${String(i).padStart(5, '0')}`,
         cameraSN: `CAM-${prefix.substring(0, 2)}-2023-${String(i).padStart(3, '0')}`,
         type,
         status,
         fuelType,
-        healthIndex: Math.floor(45 + Math.random() * 45),
         fuelCostPerMile: parseFloat((0.24 + Math.random() * 0.24).toFixed(2)), // converted from km
         avgFuelEfficiency: parseFloat((14 + Math.random() * 19).toFixed(1)), // mpg (converted from km/L)
         fuelConsumptionDaily: parseFloat((status === 'In Service' ? 0 : 5 + Math.random() * 15).toFixed(1)),
@@ -57,7 +92,12 @@ export const generateVehicleData = () => {
         speedMph: status === 'Active' ? Math.floor(Math.random() * 50) : 0, // mph (converted from kmh)
         odometerMiles: Math.floor(6200 + Math.random() * 55900), // miles (converted from km)
         activeDTCs: alertCount
-      });
+      };
+      
+      // Calculate health index using unified formula
+      vehicleData.healthIndex = calculateHealthIndex(vehicleData);
+      
+      vehicles.push(vehicleData);
     }
     return vehicles;
   };
@@ -73,7 +113,6 @@ export const generateVehicleData = () => {
       type: 'Van',
       status: 'Active',
       fuelType: 'Diesel',
-      healthIndex: 72,
       fuelCostPerMile: 0.39,
       avgFuelEfficiency: 20.0,
       fuelConsumptionDaily: 15.2,
@@ -420,7 +459,13 @@ export const generateVehicleData = () => {
     }
   ];
 
-  return [...specificVehicles, ...vehicles.slice(specificVehicles.length)];
+  // Calculate health index for all specific vehicles
+  const specificVehiclesWithHealth = specificVehicles.map(v => ({
+    ...v,
+    healthIndex: calculateHealthIndex(v)
+  }));
+  
+  return [...specificVehiclesWithHealth, ...vehicles.slice(specificVehicles.length)];
 };
 
 export const generateOBDParameters = () => {
@@ -847,6 +892,12 @@ export const generateDTCDetails = (vehicleId) => {
 };
 
 export const generateFleetMetrics = () => {
+  // Get all vehicles to calculate fleet health
+  const allVehicles = generateVehicleData();
+  const fleetHealthIndex = Math.round(
+    allVehicles.reduce((sum, v) => sum + v.healthIndex, 0) / allVehicles.length
+  );
+  
   return {
     // LEVEL 0 - Fleet Overview
     totalVehicles: 3,
@@ -863,7 +914,7 @@ export const generateFleetMetrics = () => {
     maintenancePercentage: 33.3,
     
     // LEVEL 1 - Core Fleet KPIs
-    fleetHealthIndex: 66,
+    fleetHealthIndex,
     fuelCostPerMile: 0.37, // $/mile (converted from 0.23 $/km)
     avgFuelEfficiency: 20.0, // mpg (converted from 8.5 km/L)
     avgFuelEfficiencyL100km: 11.8, // L/100km (kept for reference)

@@ -80,7 +80,7 @@ const Vehicles = () => {
 
   // Download CSV function
   const downloadCSV = () => {
-    const headers = ['Vehicle ID', 'VIN', 'Type', 'Fuel Type', 'Camera SN', 'Status', 'Health', 'Cost/mile', 'Efficiency (mpg)', 'Fuel Daily', 'Moving/Idle', 'Cost Daily', 'Alerts'];
+    const headers = ['Vehicle ID', 'VIN', 'Type', 'Fuel Type', 'Camera SN', 'Status', 'Health', 'Fuel Consumption (L/100mi)', 'Efficiency (mpg)', 'Fuel Daily', 'Moving/Idle', 'Alerts'];
     const csvData = allVehicles.map(v => [
       v.id,
       v.vin,
@@ -89,11 +89,10 @@ const Vehicles = () => {
       v.cameraSN,
       v.status,
       v.healthIndex,
-      v.fuelCostPerMile,
+      ((v.fuelCostPerMile / 3.5) * 100).toFixed(1),
       v.avgFuelEfficiency,
       v.fuelConsumptionDaily,
       `${v.fuelMoving}/${v.fuelIdle}`,
-      v.totalFuelCostDaily,
       v.alerts.map(a => a.type).join('; ')
     ]);
     
@@ -176,10 +175,6 @@ const Vehicles = () => {
       case 'movingIdle':
         aValue = a.fuelMoving + a.fuelIdle;
         bValue = b.fuelMoving + b.fuelIdle;
-        break;
-      case 'costDaily':
-        aValue = a.totalFuelCostDaily;
-        bValue = b.totalFuelCostDaily;
         break;
       case 'alerts':
         aValue = a.alerts.length;
@@ -562,14 +557,35 @@ const Vehicles = () => {
                       {showMetricHelp === 'health' && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setShowMetricHelp(null)} />
-                          <div className="absolute z-50 left-0 top-6 w-80 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
-                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Health Index</h4>
+                          <div className="absolute z-50 left-0 top-6 w-96 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
+                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Health Index (0-100)</h4>
                             <p className="text-xs text-gray-900 leading-relaxed mb-3">
-                              Composite score (0-100) representing overall vehicle condition based on OBD-II diagnostics, maintenance status, and operational parameters. Lower scores indicate more attention needed.
+                              Composite score combining four key metrics:
                             </p>
-                            <p className="text-xs text-gray-600 font-semibold mb-1">CALCULATION:</p>
-                            <p className="text-xs text-indigo-700 font-mono">
-                              Weighted avg of: engine faults (30%), sensor health (25%), battery voltage (15%), oil pressure (15%), coolant temp (10%), maintenance (5%)
+                            <div className="space-y-2 mb-3">
+                              <div className="text-xs">
+                                <span className="font-semibold text-gray-900">1. MPG Score (30%):</span>
+                                <p className="text-gray-700 ml-3">Fuel efficiency: (vehicle MPG - 10) ÷ 25 × 100<br/>
+                                <span className="text-gray-500 italic">10 mpg = 0 pts, 22.5 mpg = 50 pts, 35+ mpg = 100 pts</span></p>
+                              </div>
+                              <div className="text-xs">
+                                <span className="font-semibold text-gray-900">2. Idle Score (20%):</span>
+                                <p className="text-gray-700 ml-3">100 - (idle percentage × 2)<br/>
+                                <span className="text-gray-500 italic">0% idle = 100 pts, 25% = 50 pts, 50%+ = 0 pts</span></p>
+                              </div>
+                              <div className="text-xs">
+                                <span className="font-semibold text-gray-900">3. Maintenance (20%):</span>
+                                <p className="text-gray-700 ml-3">100 if no alerts, 0 if any overdue/due maintenance</p>
+                              </div>
+                              <div className="text-xs">
+                                <span className="font-semibold text-gray-900">4. DTC Score (30%):</span>
+                                <p className="text-gray-700 ml-3">100 - (active DTCs × 33)<br/>
+                                <span className="text-gray-500 italic">0 DTCs = 100 pts, 1 DTC = 67 pts, 2 = 34 pts, 3+ = 0 pts</span></p>
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-600 font-semibold mb-1 border-t border-gray-200 pt-2">FORMULA:</p>
+                            <p className="text-xs text-indigo-700 font-mono bg-indigo-50 p-2 rounded">
+                              Health = (MPG-10)/25×100×0.3 + (100-idle%×2)×0.2 + Maint×0.2 + (100-DTCs×33)×0.3
                             </p>
                           </div>
                         </>
@@ -580,7 +596,7 @@ const Vehicles = () => {
                 <th className="px-4 py-3 font-bold">
                   <div className="flex items-center gap-1">
                     <button onClick={() => handleSort('costMile')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
-                      Cost/mile
+                      Fuel/100mi
                       {sortColumn === 'costMile' ? (
                         sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
                       ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
@@ -599,13 +615,13 @@ const Vehicles = () => {
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setShowMetricHelp(null)} />
                           <div className="absolute z-50 left-0 top-6 w-80 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
-                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Cost per Mile</h4>
+                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Fuel Consumption per 100 Miles</h4>
                             <p className="text-xs text-gray-900 leading-relaxed mb-3">
-                              Operational fuel cost efficiency metric showing how much it costs to operate this vehicle per mile traveled. Critical for fleet budget optimization and route planning.
+                              Fuel efficiency metric showing how many liters of fuel this vehicle consumes per 100 miles traveled. Lower values indicate better fuel economy. Critical for fleet efficiency optimization and identifying vehicles with excessive consumption.
                             </p>
                             <p className="text-xs text-gray-600 font-semibold mb-1">CALCULATION:</p>
                             <p className="text-xs text-indigo-700 font-mono">
-                              Total Fuel Cost ÷ Distance Traveled (from odometer PID 01-A6)
+                              (Total Fuel Used (L) ÷ Distance Traveled (miles)) × 100
                             </p>
                           </div>
                         </>
@@ -722,42 +738,6 @@ const Vehicles = () => {
                   </div>
                 </th>
                 <th className="px-4 py-3 font-bold">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => handleSort('costDaily')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
-                      Cost Daily
-                      {sortColumn === 'costDaily' ? (
-                        sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                      ) : <ArrowUpDown className="w-3 h-3 opacity-30" />}
-                    </button>
-                    <div className="relative inline-block">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowMetricHelp(showMetricHelp === 'costDaily' ? null : 'costDaily');
-                        }}
-                        className="text-gray-400 hover:text-[#5b4b9d] transition-colors"
-                      >
-                        <HelpCircle className="w-4 h-4" />
-                      </button>
-                      {showMetricHelp === 'costDaily' && (
-                        <>
-                          <div className="fixed inset-0 z-40" onClick={() => setShowMetricHelp(null)} />
-                          <div className="absolute z-50 left-0 top-6 w-80 bg-white border border-purple-200 rounded-xl p-4 shadow-2xl">
-                            <h4 className="text-sm font-semibold text-[#5b4b9d] mb-3">Daily Fuel Cost</h4>
-                            <p className="text-xs text-gray-900 leading-relaxed mb-3">
-                              Total monetary cost of fuel consumed per day. Essential for budgeting and identifying high-cost vehicles that may need efficiency improvements or route optimization.
-                            </p>
-                            <p className="text-xs text-gray-600 font-semibold mb-1">CALCULATION:</p>
-                            <p className="text-xs text-indigo-700 font-mono">
-                              Daily Fuel Consumption (L) × Current Fuel Price ($/L)
-                            </p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </th>
-                <th className="px-4 py-3 font-bold">
                   <button onClick={() => handleSort('alerts')} className="flex items-center gap-1 hover:text-[#5b4b9d] transition-colors">
                     Alerts
                     {sortColumn === 'alerts' ? (
@@ -807,13 +787,12 @@ const Vehicles = () => {
                         {vehicle.healthIndex}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-gray-900 font-medium">${vehicle.fuelCostPerMile.toFixed(2)}</td>
+                    <td className="px-4 py-4 text-gray-900 font-medium">{((vehicle.fuelCostPerMile / 3.5) * 100).toFixed(1)}L</td>
                     <td className="px-4 py-4 text-gray-900 font-medium">{vehicle.avgFuelEfficiency} mpg</td>
                     <td className="px-4 py-4 text-gray-900 font-medium">{vehicle.fuelConsumptionDaily.toFixed(1)}L</td>
                     <td className="px-4 py-4 text-gray-900 font-medium">
                       {vehicle.fuelMoving.toFixed(1)}L / {vehicle.fuelIdle.toFixed(1)}L
                     </td>
-                    <td className="px-4 py-4 text-gray-900 font-medium">${vehicle.totalFuelCostDaily.toFixed(2)}</td>
                     <td className="px-4 py-4">
                       <div className="flex flex-wrap gap-1">
                         {vehicle.alerts.length > 0 ? (
@@ -960,7 +939,7 @@ const Vehicles = () => {
                                   onClick={() => setShowDTCDetails(showDTCDetails === vehicle.id ? null : vehicle.id)}
                                   className="px-3 py-1 bg-[#5b4b9d] text-white rounded-lg hover:bg-[#6d5ba7] transition-colors text-xs font-semibold"
                                 >
-                                  Learn More
+                                  Get Alerts History
                                 </button>
                               </div>
                               <ResponsiveContainer width="100%" height={180}>
