@@ -473,7 +473,9 @@ const Dashboard = ({ isChatOpen = false }) => {
         <div className="bg-white border border-gray-300 p-3 rounded-lg shadow-xl">
           <p className="text-gray-900 text-sm font-semibold mb-1">{data.category}</p>
           <p className="text-gray-700 text-xs">
-            {data.count !== undefined ? `Vehicles: ${data.count}` : `Fuel: ${data.fuel?.toFixed(1)}L`}
+            {data.count !== undefined ? `Vehicles: ${data.count}` : 
+             data.time !== undefined ? `Time: ${data.time?.toFixed(1)}%` : 
+             `Fuel: ${data.fuel?.toFixed(1)}L`}
           </p>
           <p className="text-gray-700 text-xs">
             Percentage: {data.percentage?.toFixed(1)}%
@@ -751,23 +753,23 @@ const Dashboard = ({ isChatOpen = false }) => {
                 <InfoTooltip 
                   id="plot-idle-analysis"
                   title="Idle vs Active Analysis"
-                  description="Combined view of vehicle status and fuel consumption patterns. Left chart shows vehicle distribution, right chart shows fuel waste from idling."
-                  calculation="Vehicles: Count by status | Fuel: Consumption by speed state"
+                  description="Combined view of time usage and fuel consumption patterns. Left chart shows percentage of time vehicles spend idle vs active, right chart shows fuel waste from idling."
+                  calculation="Time: % of operation time by status | Fuel: Consumption by speed state"
                 />
               </div>
               <p className="text-xs text-gray-600 font-medium mt-1">Status & fuel breakdown</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            {/* Vehicles Pie Chart */}
+            {/* Time Pie Chart */}
             <div>
-              <p className="text-xs font-semibold text-gray-700 text-center mb-2">Vehicles: Idle vs Active</p>
+              <p className="text-xs font-semibold text-gray-700 text-center mb-2">Time: Idle vs Active</p>
               <ResponsiveContainer width="100%" height={180}>
                 <PieChart margin={{ top: 0, right: 30, bottom: 0, left: 30 }}>
                   <Pie
                     data={[
-                      { category: 'Active', count: metrics.vehiclesActive, percentage: (metrics.vehiclesActive / metrics.totalVehicles) * 100 },
-                      { category: 'Idle', count: metrics.vehiclesIdle, percentage: (metrics.vehiclesIdle / metrics.totalVehicles) * 100 }
+                      { category: 'Active', time: 66.7, percentage: 66.7 },
+                      { category: 'Idle', time: 33.3, percentage: 33.3 }
                     ]}
                     cx="50%"
                     cy="50%"
@@ -775,7 +777,7 @@ const Dashboard = ({ isChatOpen = false }) => {
                     label={({ category, percentage }) => `${category}: ${percentage.toFixed(1)}%`}
                     outerRadius={60}
                     fill="#8884d8"
-                    dataKey="count"
+                    dataKey="time"
                   >
                     <Cell fill="#10b981" />
                     <Cell fill="#f59e0b" />

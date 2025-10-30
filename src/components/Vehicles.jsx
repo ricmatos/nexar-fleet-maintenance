@@ -285,6 +285,13 @@ const Vehicles = () => {
         battery: vehicle.batteryVoltage + (Math.random() - 0.5) * 0.3,
         oilPressure: vehicle.oilPressure + (Math.random() - 0.5) * 5,
         barometric: vehicle.barometricPressure + (Math.random() - 0.5) * 0.5,
+        engineOilLife: Math.max(0, vehicle.engineOilLife - (i * 0.1)), // Gradual decrease
+        
+        // Tire pressures
+        tirePressureFL: vehicle.tirePressureFrontLeft + (Math.random() - 0.5) * 0.5,
+        tirePressureFR: vehicle.tirePressureFrontRight + (Math.random() - 0.5) * 0.5,
+        tirePressureRL: vehicle.tirePressureRearLeft + (Math.random() - 0.5) * 0.5,
+        tirePressureRR: vehicle.tirePressureRearRight + (Math.random() - 0.5) * 0.5,
         
         // Fuel metrics
         fuelLevel: Math.max(0, vehicle.fuelLevel - (i * 0.5)),
@@ -848,20 +855,22 @@ const Vehicles = () => {
                               </ResponsiveContainer>
                             </div>
 
-                            {/* Chart 2: Battery Voltage */}
+                            {/* Chart 2: Battery Voltage & Engine Oil Life */}
                             <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
                               <div className="flex items-center gap-2 mb-3">
                                 <Zap className="w-4 h-4 text-yellow-400" />
-                                <h5 className="text-sm font-bold text-gray-900">Battery Voltage</h5>
+                                <h5 className="text-sm font-bold text-gray-900">Battery Voltage & Oil Life</h5>
                               </div>
                               <ResponsiveContainer width="100%" height={180}>
                                 <LineChart data={generateTimeSeriesData(vehicle)}>
                                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                                   <XAxis dataKey="time" stroke="#374151" style={{ fontSize: '10px', fontWeight: '600' }} />
-                                  <YAxis stroke="#374151" style={{ fontSize: '10px', fontWeight: '600' }} domain={[11, 14]} />
+                                  <YAxis yAxisId="left" stroke="#eab308" style={{ fontSize: '10px', fontWeight: '600' }} domain={[11, 14]} />
+                                  <YAxis yAxisId="right" orientation="right" stroke="#8b5cf6" style={{ fontSize: '10px', fontWeight: '600' }} domain={[0, 100]} />
                                   <Tooltip content={<CustomTooltip />} />
                                   <Legend wrapperStyle={{ fontSize: '10px', fontWeight: '600', color: '#374151' }} iconType="circle" />
-                                  <Line type="monotone" dataKey="battery" stroke="#eab308" strokeWidth={2} name="Battery (V)" dot={false} />
+                                  <Line yAxisId="left" type="monotone" dataKey="battery" stroke="#eab308" strokeWidth={2} name="Battery (V)" dot={false} />
+                                  <Line yAxisId="right" type="monotone" dataKey="engineOilLife" stroke="#8b5cf6" strokeWidth={2} name="Oil Life (%)" dot={false} />
                                 </LineChart>
                               </ResponsiveContainer>
                             </div>
@@ -886,23 +895,28 @@ const Vehicles = () => {
                               </ResponsiveContainer>
                             </div>
 
-                            {/* Chart 4: Temperature Monitoring */}
+                            {/* Chart 4: Temperature & Tire Monitoring */}
                             <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
                               <div className="flex items-center gap-2 mb-3">
                                 <Thermometer className="w-4 h-4 text-red-400" />
-                                <h5 className="text-sm font-bold text-gray-900">Temperature Monitoring</h5>
+                                <h5 className="text-sm font-bold text-gray-900">Temperature & Tire Monitoring</h5>
                               </div>
                               <ResponsiveContainer width="100%" height={180}>
-                                <AreaChart data={generateTimeSeriesData(vehicle)}>
+                                <LineChart data={generateTimeSeriesData(vehicle)}>
                                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                                   <XAxis dataKey="time" stroke="#374151" style={{ fontSize: '10px', fontWeight: '600' }} />
-                                  <YAxis stroke="#374151" style={{ fontSize: '10px', fontWeight: '600' }} />
+                                  <YAxis yAxisId="left" stroke="#374151" style={{ fontSize: '10px', fontWeight: '600' }} domain={[0, 120]} />
+                                  <YAxis yAxisId="right" orientation="right" stroke="#10b981" style={{ fontSize: '10px', fontWeight: '600' }} domain={[25, 40]} />
                                   <Tooltip content={<CustomTooltip />} />
-                                  <Legend wrapperStyle={{ fontSize: '10px', fontWeight: '600', color: '#374151' }} iconType="square" />
-                                  <Area type="monotone" dataKey="coolant" stroke="#ef4444" fill="#ef444420" strokeWidth={2} name="Coolant (°C)" />
-                                  <Area type="monotone" dataKey="iat" stroke="#f59e0b" fill="#f59e0b20" strokeWidth={2} name="IAT (°C)" />
-                                  <Area type="monotone" dataKey="ambient" stroke="#3b82f6" fill="#3b82f620" strokeWidth={2} name="Ambient (°C)" />
-                                </AreaChart>
+                                  <Legend wrapperStyle={{ fontSize: '9px', fontWeight: '600', color: '#374151' }} iconType="line" />
+                                  <Line yAxisId="left" type="monotone" dataKey="coolant" stroke="#ef4444" strokeWidth={2} name="Coolant (°C)" dot={false} />
+                                  <Line yAxisId="left" type="monotone" dataKey="iat" stroke="#f59e0b" strokeWidth={2} name="IAT (°C)" dot={false} />
+                                  <Line yAxisId="left" type="monotone" dataKey="ambient" stroke="#3b82f6" strokeWidth={2} name="Ambient (°C)" dot={false} />
+                                  <Line yAxisId="right" type="monotone" dataKey="tirePressureFL" stroke="#10b981" strokeWidth={1.5} name="Tire FL (PSI)" dot={false} strokeDasharray="5 5" />
+                                  <Line yAxisId="right" type="monotone" dataKey="tirePressureFR" stroke="#059669" strokeWidth={1.5} name="Tire FR (PSI)" dot={false} strokeDasharray="3 3" />
+                                  <Line yAxisId="right" type="monotone" dataKey="tirePressureRL" stroke="#84cc16" strokeWidth={1.5} name="Tire RL (PSI)" dot={false} strokeDasharray="5 2" />
+                                  <Line yAxisId="right" type="monotone" dataKey="tirePressureRR" stroke="#65a30d" strokeWidth={1.5} name="Tire RR (PSI)" dot={false} />
+                                </LineChart>
                               </ResponsiveContainer>
                             </div>
 
@@ -1034,7 +1048,7 @@ const Vehicles = () => {
                           {/* Current Values Summary */}
                           <div className="mt-4 pt-4 border-t border-gray-200">
                             <h5 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-3">Current Values</h5>
-                            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-3">
+                            <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3 mb-3">
                               <div className="text-center">
                                 <div className="text-xs text-gray-600 font-semibold">RPM</div>
                                 <div className="text-sm font-bold text-gray-900">{vehicle.engineRPM}</div>
@@ -1060,11 +1074,25 @@ const Vehicles = () => {
                                 </div>
                               </div>
                               <div className="text-center">
+                                <div className="text-xs text-gray-600 font-semibold">IAT (°C)</div>
+                                <div className="text-sm font-bold text-gray-900">{vehicle.intakeAirTemp}°C</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs text-gray-600 font-semibold">Ambient (°C)</div>
+                                <div className="text-sm font-bold text-gray-900">{vehicle.ambientTemp}°C</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs text-gray-600 font-semibold">Barometric (kPa)</div>
+                                <div className="text-sm font-bold text-gray-900">{vehicle.barometricPressure}</div>
+                              </div>
+                              <div className="text-center">
                                 <div className="text-xs text-gray-600 font-semibold">Oil Pressure</div>
                                 <div className={`text-sm font-bold ${vehicle.oilPressure < 20 && vehicle.oilPressure > 0 ? 'text-red-500' : 'text-gray-900'}`}>
                                   {vehicle.oilPressure} psi
                                 </div>
                               </div>
+                            </div>
+                            <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3">
                               <div className="text-center">
                                 <div className="text-xs text-gray-600 font-semibold">Speed</div>
                                 <div className="text-sm font-bold text-gray-900">{vehicle.speedMph} mph</div>
@@ -1077,6 +1105,36 @@ const Vehicles = () => {
                                 <div className="text-xs text-gray-600 font-semibold">Alerts</div>
                                 <div className={`text-sm font-bold ${vehicle.activeDTCs > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
                                   {vehicle.activeDTCs}
+                                </div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs text-gray-600 font-semibold">Oil Life</div>
+                                <div className={`text-sm font-bold ${vehicle.engineOilLife < 30 ? 'text-red-500' : vehicle.engineOilLife < 50 ? 'text-yellow-500' : 'text-emerald-500'}`}>
+                                  {vehicle.engineOilLife}%
+                                </div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs text-gray-600 font-semibold">Tire FL</div>
+                                <div className={`text-sm font-bold ${vehicle.tirePressureFrontLeft < 30 ? 'text-red-500' : 'text-gray-900'}`}>
+                                  {vehicle.tirePressureFrontLeft} PSI
+                                </div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs text-gray-600 font-semibold">Tire FR</div>
+                                <div className={`text-sm font-bold ${vehicle.tirePressureFrontRight < 30 ? 'text-red-500' : 'text-gray-900'}`}>
+                                  {vehicle.tirePressureFrontRight} PSI
+                                </div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs text-gray-600 font-semibold">Tire RL</div>
+                                <div className={`text-sm font-bold ${vehicle.tirePressureRearLeft < 30 ? 'text-red-500' : 'text-gray-900'}`}>
+                                  {vehicle.tirePressureRearLeft} PSI
+                                </div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs text-gray-600 font-semibold">Tire RR</div>
+                                <div className={`text-sm font-bold ${vehicle.tirePressureRearRight < 30 ? 'text-red-500' : 'text-gray-900'}`}>
+                                  {vehicle.tirePressureRearRight} PSI
                                 </div>
                               </div>
                             </div>

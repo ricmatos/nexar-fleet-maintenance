@@ -86,12 +86,17 @@ export const generateVehicleData = () => {
         oilPressure: status === 'In Service' ? 0 : Math.floor(35 + Math.random() * 15),
         fuelLevel: Math.floor(30 + Math.random() * 50),
         defLevel: fuelType === 'Diesel' ? Math.floor(5 + Math.random() * 50) : null,
-        ambientTemp: 22,
-        barometricPressure: 101.3,
-        intakeAirTemp: Math.floor(22 + Math.random() * 15),
-        speedMph: status === 'Active' ? Math.floor(Math.random() * 50) : 0, // mph (converted from kmh)
-        odometerMiles: Math.floor(6200 + Math.random() * 55900), // miles (converted from km)
-        activeDTCs: alertCount
+      ambientTemp: 22,
+      barometricPressure: 101.3,
+      intakeAirTemp: Math.floor(22 + Math.random() * 15),
+      speedMph: status === 'Active' ? Math.floor(Math.random() * 50) : 0, // mph (converted from kmh)
+      odometerMiles: Math.floor(6200 + Math.random() * 55900), // miles (converted from km)
+      activeDTCs: alertCount,
+      engineOilLife: Math.floor(30 + Math.random() * 70), // % remaining
+      tirePressureFrontLeft: parseFloat((30 + Math.random() * 5).toFixed(1)), // PSI
+      tirePressureFrontRight: parseFloat((30 + Math.random() * 5).toFixed(1)),
+      tirePressureRearLeft: parseFloat((30 + Math.random() * 5).toFixed(1)),
+      tirePressureRearRight: parseFloat((30 + Math.random() * 5).toFixed(1))
       };
       
       // Calculate health index using unified formula
@@ -137,7 +142,12 @@ export const generateVehicleData = () => {
       intakeAirTemp: 31,
       speedMph: 24,
       odometerMiles: 28100,
-      activeDTCs: 2
+      activeDTCs: 2,
+      engineOilLife: 65,
+      tirePressureFrontLeft: 32.5,
+      tirePressureFrontRight: 32.8,
+      tirePressureRearLeft: 31.9,
+      tirePressureRearRight: 32.2
     },
     {
       id: 'TRK-142',
@@ -170,7 +180,12 @@ export const generateVehicleData = () => {
       intakeAirTemp: 22,
       speedMph: 0,
       odometerMiles: 48750,
-      activeDTCs: 2
+      activeDTCs: 2,
+      engineOilLife: 45,
+      tirePressureFrontLeft: 28.5,
+      tirePressureFrontRight: 29.0,
+      tirePressureRearLeft: 28.2,
+      tirePressureRearRight: 28.8
     },
     {
       id: 'CAR-227',
@@ -202,7 +217,12 @@ export const generateVehicleData = () => {
       intakeAirTemp: 29,
       speedMph: 0,
       odometerMiles: 20000,
-      activeDTCs: 1
+      activeDTCs: 1,
+      engineOilLife: 78,
+      tirePressureFrontLeft: 33.2,
+      tirePressureFrontRight: 33.5,
+      tirePressureRearLeft: 32.8,
+      tirePressureRearRight: 33.0
     },
     {
       id: 'VAN-003',
@@ -234,7 +254,12 @@ export const generateVehicleData = () => {
       intakeAirTemp: 22,
       speedMph: 0,
       odometerMiles: 35350,
-      activeDTCs: 1
+      activeDTCs: 1,
+      engineOilLife: 35,
+      tirePressureFrontLeft: 32.0,
+      tirePressureFrontRight: 32.3,
+      tirePressureRearLeft: 31.7,
+      tirePressureRearRight: 32.1
     },
     {
       id: 'CAR-156',
@@ -264,7 +289,12 @@ export const generateVehicleData = () => {
       intakeAirTemp: 28,
       speedMph: 28,
       odometerMiles: 7675,
-      activeDTCs: 0
+      activeDTCs: 0,
+      engineOilLife: 92,
+      tirePressureFrontLeft: 34.1,
+      tirePressureFrontRight: 34.2,
+      tirePressureRearLeft: 33.8,
+      tirePressureRearRight: 34.0
     },
     {
       id: 'TRK-089',
@@ -297,7 +327,12 @@ export const generateVehicleData = () => {
       intakeAirTemp: 35,
       speedMph: 40,
       odometerMiles: 55450,
-      activeDTCs: 2
+      activeDTCs: 2,
+      engineOilLife: 52,
+      tirePressureFrontLeft: 31.8,
+      tirePressureFrontRight: 32.1,
+      tirePressureRearLeft: 31.5,
+      tirePressureRearRight: 31.9
     },
     {
       id: 'VAN-045',
@@ -329,7 +364,12 @@ export const generateVehicleData = () => {
       intakeAirTemp: 30,
       speedMph: 52,
       odometerMiles: 54780,
-      activeDTCs: 1
+      activeDTCs: 1,
+      engineOilLife: 68,
+      tirePressureFrontLeft: 32.7,
+      tirePressureFrontRight: 32.9,
+      tirePressureRearLeft: 32.4,
+      tirePressureRearRight: 32.6
     },
     {
       id: 'CAR-334',
@@ -361,7 +401,12 @@ export const generateVehicleData = () => {
       intakeAirTemp: 27,
       speedMph: 48,
       odometerMiles: 28900,
-      activeDTCs: 1
+      activeDTCs: 1,
+      engineOilLife: 81,
+      tirePressureFrontLeft: 33.5,
+      tirePressureFrontRight: 33.7,
+      tirePressureRearLeft: 33.2,
+      tirePressureRearRight: 33.4
     },
     {
       id: 'VAN-078',
@@ -393,7 +438,12 @@ export const generateVehicleData = () => {
       intakeAirTemp: 24,
       speedMph: 0,
       odometerMiles: 67340,
-      activeDTCs: 1
+      activeDTCs: 1,
+      engineOilLife: 42,
+      tirePressureFrontLeft: 31.2,
+      tirePressureFrontRight: 31.5,
+      tirePressureRearLeft: 30.9,
+      tirePressureRearRight: 31.3
     },
     {
       id: 'TRK-201',
@@ -425,7 +475,12 @@ export const generateVehicleData = () => {
       intakeAirTemp: 32,
       speedMph: 58,
       odometerMiles: 92180,
-      activeDTCs: 1
+      activeDTCs: 1,
+      engineOilLife: 58,
+      tirePressureFrontLeft: 32.3,
+      tirePressureFrontRight: 32.6,
+      tirePressureRearLeft: 32.0,
+      tirePressureRearRight: 32.4
     },
     {
       id: 'CAR-445',
@@ -455,7 +510,12 @@ export const generateVehicleData = () => {
       intakeAirTemp: 26,
       speedMph: 42,
       odometerMiles: 18650,
-      activeDTCs: 0
+      activeDTCs: 0,
+      engineOilLife: 88,
+      tirePressureFrontLeft: 33.8,
+      tirePressureFrontRight: 34.0,
+      tirePressureRearLeft: 33.5,
+      tirePressureRearRight: 33.7
     }
   ];
 
